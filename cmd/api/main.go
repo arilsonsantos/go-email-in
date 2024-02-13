@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/json"
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/render"
 	"log"
 	"net/http"
@@ -15,6 +16,7 @@ type Product struct {
 
 func Main() {
 	r := chi.NewRouter()
+	r.Use(middleware.Logger)
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		_, err := w.Write([]byte("hello world"))
 		if err != nil {
