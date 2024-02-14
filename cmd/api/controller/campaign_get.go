@@ -1,44 +1,29 @@
 package controller
 
 import (
+	"emailn/cmd/api/controller/utils"
 	"emailn/internal/contract"
 	"emailn/internal/domain/campaign"
-	"emailn/internal/internalerrors"
-	"errors"
 	"github.com/go-chi/render"
 	"net/http"
 )
 
 func CampaignsGet(service campaign.Service) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
-		request, err := parseJSONRequest(req)
+		var campaignDto contract.NewCampaignDto
+		campaignDto, err := utils.ParseJSONRequest(req, campaignDto)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
-		id, err := service.CreateCampaign(request)
+		id, err := service.CreateCampaign(campaignDto)
 		if err != nil {
-			handleError(w, req, err)
+			utils.HandleError(w, req, err)
 			return
 		}
 
 		render.Status(req, http.StatusCreated)
 		render.JSON(w, req, map[string]string{"id": id})
 	}
-}
-
-func parseJSONRequest(req *http.Request) (contract.NewCampaignDto, error) {
-	var request contract.NewCampaignDto
-	err := render.DecodeJSON(req.Body, &request)
-	return request, err
-}
-
-func handleError(w http.ResponseWriter, req *http.Request, err error) {
-	if errors.Is(err, internalerrors.ErrInternal) {
-		render.Status(req, http.StatusInternalServerError)
-	} else {
-		render.Status(req, http.StatusBadRequest)
-	}
-	render.JSON(w, req, map[string]string{"error": err.Error()})
 }
