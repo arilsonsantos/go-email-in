@@ -1,14 +1,11 @@
 package api
 
 import (
-	"emailn/internal/contract"
+	"emailn/cmd/api/controller"
 	"emailn/internal/domain/campaign"
 	"emailn/internal/infrastructure/database"
-	"emailn/internal/internalerrors"
-	"errors"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	"github.com/go-chi/render"
 	"net/http"
 )
 
@@ -22,30 +19,7 @@ func Api() {
 		Repository: &database.CampaignRepository{},
 	}
 
-	r.HandleFunc("/campaigns", func(w http.ResponseWriter, r *http.Request) {
-		var request contract.NewCampaignDto
-		err := render.DecodeJSON(r.Body, &request)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		id, err := service.CreateCampaign(request)
-
-		if err != nil {
-			if errors.Is(err, internalerrors.ErrInternal) {
-				render.Status(r, http.StatusInternalServerError)
-			} else {
-				render.Status(r, http.StatusBadRequest)
-			}
-			render.JSON(w, r, map[string]string{"error": err.Error()})
-			return
-		}
-
-		render.Status(r, http.StatusCreated)
-		render.JSON(w, r, map[string]string{"id": id})
-
-	})
+	r.HandleFunc("/campaigns", controller.CampaignsGet(service))
 
 	err := http.ListenAndServe(":3000", r)
 	if err != nil {
