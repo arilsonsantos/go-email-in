@@ -15,3 +15,8 @@ func HandleError(w http.ResponseWriter, req *http.Request, err error) {
 	}
 	render.JSON(w, req, map[string]string{"error": err.Error()})
 }
+
+func HandleError500(err error) {
+	render.Status(nil, http.StatusInternalServerError)
+	render.JSON(nil, nil, map[string]string{"error": err.Error()})
+}

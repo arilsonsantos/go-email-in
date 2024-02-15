@@ -1,7 +1,8 @@
 package api
 
 import (
-	"emailn/cmd/api/controller"
+	"emailn/internal/controller"
+	"emailn/internal/controller/utils"
 	"emailn/internal/domain/campaign"
 	"emailn/internal/infrastructure/database"
 	"github.com/go-chi/chi/v5"
@@ -19,11 +20,15 @@ func Api() {
 		Repository: &database.CampaignRepository{},
 	}
 
-	r.HandleFunc("/campaigns", controller.CampaignsGet(service))
+	handlers := controller.Handler{
+		CampaignService: service,
+	}
+
+	r.HandleFunc("/campaigns", handlers.CampaignPost)
 
 	err := http.ListenAndServe(":3000", r)
 	if err != nil {
-		return
+		utils.HandleError500(err)
 	}
 
 }
