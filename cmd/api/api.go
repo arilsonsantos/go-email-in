@@ -24,7 +24,8 @@ func Api() {
 		CampaignService: service,
 	}
 
-	r.HandleFunc("/campaigns", handlers.CampaignPost)
+	r.Post("/campaigns", handlers.CampaignPost)
+	r.Get("/campaigns", handlers.CampaignGet)
 
 	err := http.ListenAndServe(":3000", r)
 	if err != nil {
