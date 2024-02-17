@@ -1,18 +1,10 @@
 package controller
 
 import (
-	"emailn/internal/controller/utils"
 	"net/http"
-
-	"github.com/go-chi/render"
 )
 
-func (h *Handler) CampaignGet(w http.ResponseWriter, req *http.Request) {
+func (h *Handler) CampaignGet(w http.ResponseWriter, req *http.Request) (interface{}, int, error) {
 	campaigns, err := h.CampaignService.Repository.Get()
-	if err != nil {
-		utils.HandleError(err)
-
-	}
-	render.Status(req, http.StatusOK)
-	render.JSON(w, req, campaigns)
+	return campaigns, http.StatusOK, err
 }

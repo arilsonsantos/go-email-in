@@ -1,6 +1,8 @@
 package controller
 
 import (
+	"emailn/internal/internalerrors"
+	"errors"
 	"net/http"
 
 	"github.com/go-chi/render"
@@ -10,10 +12,13 @@ type EndpointFunc func(w http.ResponseWriter, r *http.Request) (interface{}, int
 
 func HandleControllerError(endpointFunc EndpointFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-
 		obj, status, err := endpointFunc(w, r)
 		if err != nil {
-			render.Status(r, status)
+			if errors.Is(err, internalerrors.ErrInternal) {
+				render.Status(r, 500)
+			} else {
+				render.Status(r, 400)
+			}
 			render.JSON(w, r, map[string]string{"error": err.Error()})
 			return
 		}
