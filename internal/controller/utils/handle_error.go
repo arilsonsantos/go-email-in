@@ -7,13 +7,12 @@ import (
 	"net/http"
 )
 
-func HandleError(w http.ResponseWriter, req *http.Request, err error) {
+func HandleError(err error) (int, error) {
 	if errors.Is(err, internalerrors.ErrInternal) {
-		render.Status(req, http.StatusInternalServerError)
+		return http.StatusInternalServerError, err
 	} else {
-		render.Status(req, http.StatusBadRequest)
+		return http.StatusBadRequest, err
 	}
-	render.JSON(w, req, map[string]string{"error": err.Error()})
 }
 
 func HandleError500(err error) {

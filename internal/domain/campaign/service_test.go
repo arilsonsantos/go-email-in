@@ -4,9 +4,10 @@ import (
 	"emailn/internal/contract"
 	"emailn/internal/internalerrors"
 	"errors"
+	"testing"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"testing"
 )
 
 type repositoryMock struct {
@@ -18,9 +19,9 @@ func (r *repositoryMock) Save(campaign *Campaign) error {
 	return args.Error(0)
 }
 
-func (r *repositoryMock) Get() []Campaign {
+func (r *repositoryMock) Get() ([]Campaign, error) {
 	//args := r.Called(campaign)
-	return nil
+	return nil, nil
 }
 
 var (
@@ -45,7 +46,8 @@ func Test_CreateCampaign(t *testing.T) {
 			Emails:  []string{"teste1@email.com"},
 		}
 		repository.On("Save", mock.MatchedBy(func(c *Campaign) bool {
-			if c.Name != campaign.Name || c.Content != campaign.Content || len(c.Contacts) != len(campaign.Emails) {
+			if c.Name != campaign.Name || c.Content != campaign.Content ||
+				len(c.Contacts) != len(campaign.Emails) {
 				return false
 			}
 			return true
@@ -67,7 +69,8 @@ func Test_CreateCampaign(t *testing.T) {
 			Emails:  []string{"teste1@email.com"},
 		}
 		repository.On("Save", mock.MatchedBy(func(c *Campaign) bool {
-			if c.Name != campaign.Name || c.Content != campaign.Content || len(c.Contacts) != len(campaign.Emails) {
+			if c.Name != campaign.Name || c.Content != campaign.Content ||
+				len(c.Contacts) != len(campaign.Emails) {
 				return false
 			}
 			return true
@@ -104,6 +107,10 @@ func Test_CreateCampaign_ValidateRepository(t *testing.T) {
 	_, err := service.CreateCampaign(campaign)
 
 	assertions.NotNil(err)
-	assertions.Truef(errors.Is(err, internalerrors.ErrInternal), "expected internal server error, got %v", err)
+	assertions.Truef(
+		errors.Is(err, internalerrors.ErrInternal),
+		"expected internal server error, got %v",
+		err,
+	)
 	repository.AssertExpectations(t)
 }

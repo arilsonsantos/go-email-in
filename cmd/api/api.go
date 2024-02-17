@@ -5,9 +5,10 @@ import (
 	"emailn/internal/controller/utils"
 	"emailn/internal/domain/campaign"
 	"emailn/internal/infrastructure/database"
+	"net/http"
+
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	"net/http"
 )
 
 func Api() {
@@ -24,7 +25,7 @@ func Api() {
 		CampaignService: service,
 	}
 
-	r.Post("/campaigns", handlers.CampaignPost)
+	r.Post("/campaigns", controller.HandleControllerError(handlers.CampaignPost))
 	r.Get("/campaigns", handlers.CampaignGet)
 
 	err := http.ListenAndServe(":3000", r)
