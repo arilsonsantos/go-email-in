@@ -4,6 +4,7 @@ import (
 	"emailn/internal/contract"
 	"emailn/internal/internalerrors"
 	"errors"
+	"reflect"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -20,7 +21,7 @@ func (r *repositoryMock) Save(campaign *Campaign) error {
 }
 
 func (r *repositoryMock) Get() ([]Campaign, error) {
-	//args := r.Called(campaign)
+	// args := r.Called(campaign)
 	return nil, nil
 }
 
@@ -40,7 +41,7 @@ func Test_CreateCampaign(t *testing.T) {
 	assertions := assert.New(t)
 
 	t.Run("Save a new campaign", func(t *testing.T) {
-		var campaign = contract.NewCampaignDto{
+		campaign := contract.NewCampaignDto{
 			Name:    "My campaign",
 			Content: "Body of the campaign",
 			Emails:  []string{"teste1@email.com"},
@@ -63,7 +64,7 @@ func Test_CreateCampaign(t *testing.T) {
 	})
 
 	t.Run("Error trying to save a new campaign", func(t *testing.T) {
-		var campaign = contract.NewCampaignDto{
+		campaign := contract.NewCampaignDto{
 			Name:    "",
 			Content: "Body of the campaign",
 			Emails:  []string{"teste1@email.com"},
@@ -80,7 +81,6 @@ func Test_CreateCampaign(t *testing.T) {
 
 		assertions.Empty(createCampaign)
 		assertions.NotNil(err)
-
 	})
 
 	t.Run("Create a new campaign - empty name", func(t *testing.T) {
@@ -113,4 +113,48 @@ func Test_CreateCampaign_ValidateRepository(t *testing.T) {
 		err,
 	)
 	repository.AssertExpectations(t)
+}
+
+func Test_repositoryMock_Save(t *testing.T) {
+	type args struct {
+		campaign *Campaign
+	}
+	tests := []struct {
+		name    string
+		r       *repositoryMock
+		args    args
+		wantErr bool
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if err := tt.r.Save(tt.args.campaign); (err != nil) != tt.wantErr {
+				t.Errorf("repositoryMock.Save() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}
+
+func Test_repositoryMock_Get(t *testing.T) {
+	tests := []struct {
+		name    string
+		r       *repositoryMock
+		want    []Campaign
+		wantErr bool
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := tt.r.Get()
+			if (err != nil) != tt.wantErr {
+				t.Errorf("repositoryMock.Get() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("repositoryMock.Get() = %v, want %v", got, tt.want)
+			}
+		})
+	}
 }
