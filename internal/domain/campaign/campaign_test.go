@@ -23,6 +23,7 @@ func Test_NewCampaing_CreateCampaign(t *testing.T) {
 	assertions.Equal(campaing.Content, content)
 	assertions.Equal(len(campaing.Contacts), len(contacts))
 	assertions.Equal(campaing.Contacts[0].Email, contacts[0])
+	assertions.Equal(campaing.Status, Pending)
 }
 
 func Test_NewCampaign_ID_IsNotNIL(t *testing.T) {
