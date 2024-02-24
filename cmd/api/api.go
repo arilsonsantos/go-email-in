@@ -17,12 +17,12 @@ func Api() {
 	r.Use(middleware.RealIP)
 	r.Use(middleware.Logger)
 
-	service := campaign.Service{
+	service := campaign.ServiceImpl{
 		Repository: &database.CampaignRepository{},
 	}
 
 	handlers := controller.Handler{
-		CampaignService: service,
+		CampaignService: &service,
 	}
 
 	r.Post("/campaigns", controller.HandleControllerError(handlers.CampaignPost))

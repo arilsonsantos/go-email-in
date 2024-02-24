@@ -6,7 +6,7 @@ import (
 )
 
 func (h *Handler) CampaignGet(w http.ResponseWriter, req *http.Request) (interface{}, int, error) {
-	campaigns, err := h.CampaignService.Repository.Get()
+	campaigns, err := h.CampaignService.GetCampaigns()
 	if campaigns == nil {
 		return nil, http.StatusNoContent, internalerrors.ErrNoContent
 	}

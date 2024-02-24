@@ -34,7 +34,7 @@ var (
 		},
 	}
 	repository = new(repositoryMock)
-	service    = Service{repository}
+	service    = ServiceImpl{repository}
 )
 
 func Test_CreateCampaign(t *testing.T) {
@@ -102,7 +102,7 @@ func Test_CreateCampaign_ValidateRepository(t *testing.T) {
 		},
 	}
 	repository = new(repositoryMock)
-	service = Service{repository}
+	service = ServiceImpl{repository}
 	repository.On("Save", mock.Anything).Return(errors.New("error"))
 	_, err := service.CreateCampaign(campaign)
 
@@ -119,13 +119,11 @@ func Test_repositoryMock_Save(t *testing.T) {
 	type args struct {
 		campaign *Campaign
 	}
-	tests := []struct {
+	var tests []struct {
 		name    string
 		r       *repositoryMock
 		args    args
 		wantErr bool
-	}{
-		// TODO: Add test cases.
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -137,13 +135,11 @@ func Test_repositoryMock_Save(t *testing.T) {
 }
 
 func Test_repositoryMock_Get(t *testing.T) {
-	tests := []struct {
+	var tests []struct {
 		name    string
 		r       *repositoryMock
 		want    []Campaign
 		wantErr bool
-	}{
-		// TODO: Add test cases.
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
