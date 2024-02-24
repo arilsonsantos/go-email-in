@@ -8,6 +8,10 @@ type CampaignRepository struct {
 	campaigns []campaign.Campaign
 }
 
+func (c *CampaignRepository) GetBy(id string) (*campaign.Campaign, error) {
+	return &c.campaigns[0], nil
+}
+
 func (c *CampaignRepository) Save(campaign *campaign.Campaign) error {
 	c.campaigns = append(c.campaigns, *campaign)
 	return nil

@@ -7,11 +7,12 @@ import (
 	"emailn/internal/internalerrors"
 	"encoding/json"
 	"fmt"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
 type serviceMock struct {
@@ -19,8 +20,13 @@ type serviceMock struct {
 }
 
 func (r *serviceMock) GetCampaigns() ([]campaign.Campaign, error) {
-	//TODO implement me
-	panic("implement me")
+	args := r.Called()
+	return nil, args.Error(1)
+}
+
+func (r *serviceMock) GetBy(id string) (*contract.NewCampaignResponseDto, error) {
+	args := r.Called(id)
+	return nil, args.Error(1)
 }
 
 func (r *serviceMock) CreateCampaign(dto contract.NewCampaignDto) (string, error) {

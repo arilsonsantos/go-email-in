@@ -25,6 +25,13 @@ func (r *repositoryMock) Get() ([]Campaign, error) {
 	return nil, nil
 }
 
+// Cast para *Campaign
+func (r *repositoryMock) GetBy(id string) (*contract.NewCampaignResponseDto, error) {
+	args := r.Called(id)
+	result, _ := args.Get(0).(contract.NewCampaignResponseDto)
+	return &result, nil
+}
+
 var (
 	campaign = contract.NewCampaignDto{
 		Name:    "My campaign",
@@ -34,7 +41,7 @@ var (
 		},
 	}
 	repository = new(repositoryMock)
-	service    = ServiceImpl{repository}
+	service    = ServiceImpl{Repository: repository}
 )
 
 func Test_CreateCampaign(t *testing.T) {
@@ -153,4 +160,18 @@ func Test_repositoryMock_Get(t *testing.T) {
 			}
 		})
 	}
+}
+
+func Test_repositoryMock_GetBy(t *testing.T) {
+	assertions := assert.New(t)
+	campaignDto := contract.NewCampaignResponseDto{
+		ID:      "123",
+		Name:    "My campaign",
+		Content: "Body of the campaign",
+		Status:  "Pending",
+	}
+	repository := new(repositoryMock)
+	repository.On("GetBy", mock.Anything).Return(campaignDto, nil)
+	var campaignReturned, _ = repository.GetBy(campaignDto.ID)
+	assertions.Equal(campaignDto.ID, campaignReturned.ID)
 }
