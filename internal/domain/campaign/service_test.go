@@ -26,10 +26,9 @@ func (r *repositoryMock) Get() ([]Campaign, error) {
 }
 
 // Cast para *Campaign
-func (r *repositoryMock) GetBy(id string) (*contract.NewCampaignResponseDto, error) {
+func (r *repositoryMock) GetBy(id string) (*Campaign, error) {
 	args := r.Called(id)
-	result, _ := args.Get(0).(contract.NewCampaignResponseDto)
-	return &result, nil
+	return args.Get(0).(*Campaign), nil
 }
 
 var (
@@ -141,7 +140,7 @@ func Test_repositoryMock_Save(t *testing.T) {
 	}
 }
 
-func Test_repositoryMock_Get(t *testing.T) {
+func Test_Get(t *testing.T) {
 	var tests []struct {
 		name    string
 		r       *repositoryMock
@@ -162,16 +161,14 @@ func Test_repositoryMock_Get(t *testing.T) {
 	}
 }
 
-func Test_repositoryMock_GetBy(t *testing.T) {
+func Test_GetBy(t *testing.T) {
 	assertions := assert.New(t)
-	campaignDto := contract.NewCampaignResponseDto{
-		ID:      "123",
-		Name:    "My campaign",
-		Content: "Body of the campaign",
-		Status:  "Pending",
-	}
+	campaign, _ := NewCampaign(campaign.Name, campaign.Content, campaign.Emails)
 	repository := new(repositoryMock)
-	repository.On("GetBy", mock.Anything).Return(campaignDto, nil)
-	var campaignReturned, _ = repository.GetBy(campaignDto.ID)
-	assertions.Equal(campaignDto.ID, campaignReturned.ID)
+	repository.On("GetBy", mock.MatchedBy(func(id string) bool {
+		return id == campaign.ID
+	})).Return(campaign, nil)
+	service.Repository = repository
+	var campaignReturned, _ = service.GetBy(campaign.ID)
+	assertions.Equal(campaign.ID, campaignReturned.ID)
 }

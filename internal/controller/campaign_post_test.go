@@ -21,6 +21,7 @@ type serviceMock struct {
 
 func (r *serviceMock) GetCampaigns() ([]campaign.Campaign, error) {
 	args := r.Called()
+	fmt.Printf("test")
 	return nil, args.Error(1)
 }
 
