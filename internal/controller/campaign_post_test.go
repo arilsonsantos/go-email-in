@@ -3,8 +3,8 @@ package controller
 import (
 	"bytes"
 	"emailn/internal/contract"
-	"emailn/internal/domain/campaign"
 	"emailn/internal/internalerrors"
+	"emailn/internal/test/mocks"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -15,29 +15,9 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-type serviceMock struct {
-	mock.Mock
-}
-
-func (r *serviceMock) GetCampaigns() ([]campaign.Campaign, error) {
-	args := r.Called()
-	fmt.Printf("test")
-	return nil, args.Error(1)
-}
-
-func (r *serviceMock) GetBy(id string) (*contract.NewCampaignResponseDto, error) {
-	args := r.Called(id)
-	return nil, args.Error(1)
-}
-
-func (r *serviceMock) CreateCampaign(dto contract.NewCampaignDto) (string, error) {
-	args := r.Called(dto)
-	return args.String(0), args.Error(1)
-}
-
 func Test_CampaignPost_should_save_campaing(t *testing.T) {
 	assertions := assert.New(t)
-	service := new(serviceMock)
+	service := new(mocks.CampaignServiceMock)
 	body := contract.NewCampaignDto{
 		Name:    "My campaign",
 		Content: "Body of the campaign",
@@ -70,7 +50,7 @@ func Test_CampaignPost_should_save_campaing(t *testing.T) {
 
 func Test_CampaignPost_should_return_error(t *testing.T) {
 	assertions := assert.New(t)
-	service := new(serviceMock)
+	service := new(mocks.CampaignServiceMock)
 	body := contract.NewCampaignDto{
 		Name:    "My campaign",
 		Content: "Body of the campaign",
