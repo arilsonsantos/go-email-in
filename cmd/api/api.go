@@ -27,7 +27,7 @@ func Api() {
 
 	r.Post("/campaigns", controller.HandleControllerError(handlers.CampaignPost))
 	r.Get("/campaigns", controller.HandleControllerError(handlers.CampaignGet))
-	r.Get("/campaign", controller.HandleControllerError(handlers.CampaignGetById))
+	r.Get("/campaign/{id}", controller.HandleControllerError(handlers.CampaignGetById))
 
 	err := http.ListenAndServe(":3000", r)
 	if err != nil {
