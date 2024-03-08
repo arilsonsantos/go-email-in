@@ -28,6 +28,9 @@ func (r *repositoryMock) Get() ([]Campaign, error) {
 // Cast para *Campaign
 func (r *repositoryMock) GetBy(id string) (*Campaign, error) {
 	args := r.Called(id)
+	if args.Error(1) != nil {
+		return nil, args.Error(1)
+	}
 	return args.Get(0).(*Campaign), nil
 }
 
@@ -171,4 +174,14 @@ func Test_GetBy(t *testing.T) {
 	service.Repository = repository
 	var campaignReturned, _ = service.GetBy(campaign.ID)
 	assertions.Equal(campaign.ID, campaignReturned.ID)
+}
+
+func Test_GetById_ReturnError(t *testing.T) {
+	assertions := assert.New(t)
+	campaign, _ := NewCampaign(campaign.Name, campaign.Content, campaign.Emails)
+	repository := new(repositoryMock)
+	repository.On("GetBy", mock.Anything).Return(nil, errors.New("internal error"))
+	service.Repository = repository
+	var _, err = service.GetBy(campaign.ID)
+	assertions.Equal(internalerrors.ErrInternal.Error(), err.Error())
 }
