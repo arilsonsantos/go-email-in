@@ -13,7 +13,7 @@ type Contact struct {
 type Campaign struct {
 	ID        string    `validate:"required"`
 	Name      string    `validate:"min=3,max=30"`
-	CreatedAt time.Time `validate:"required"`
+	CreatedAt time.Time `validate:"required" db:"created_at"`
 	Content   string    `validate:"min=5,max=100"`
 	Contacts  []Contact `validate:"min=1,dive"`
 	Status    string

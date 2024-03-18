@@ -3,11 +3,12 @@ package db
 import (
 	"database/sql"
 	"fmt"
+	"github.com/jmoiron/sqlx"
 	_ "github.com/mattn/go-sqlite3"
 )
 
 type DB struct {
-	DB *sql.DB
+	DB *sqlx.DB
 }
 
 var dbConn = &DB{}
@@ -15,7 +16,7 @@ var dbConn = &DB{}
 func OpenConn() (*DB, error) {
 	sc := "database.db"
 
-	conn, err := sql.Open("sqlite3", sc)
+	conn, err := sqlx.Open("sqlite3", sc)
 
 	if err != nil {
 		fmt.Println("Erro ao abrir o banco de dados:", err)

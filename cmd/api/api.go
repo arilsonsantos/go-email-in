@@ -1,12 +1,12 @@
 package api
 
 import (
-	"database/sql"
 	"emailn/internal/controller"
 	"emailn/internal/controller/utils"
 	"emailn/internal/domain/campaign"
 	"emailn/internal/infrastructure/database"
 	"emailn/internal/infrastructure/db"
+	"github.com/jmoiron/sqlx"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -20,7 +20,7 @@ func Api() {
 	r.Use(middleware.Logger)
 
 	conn, err := db.OpenConn()
-	defer func(DB *sql.DB) { _ = DB.Close() }(conn.DB)
+	defer func(DB *sqlx.DB) { _ = DB.Close() }(conn.DB)
 
 	initDB(conn.DB)
 
@@ -47,7 +47,7 @@ func Api() {
 
 }
 
-func initDB(dbConn *sql.DB) {
+func initDB(dbConn *sqlx.DB) {
 	_, _ = dbConn.Exec(`
 		CREATE TABLE IF NOT EXISTS Contact (
 	  	id TEXT PRIMARY KEY,

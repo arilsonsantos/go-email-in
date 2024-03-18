@@ -2,43 +2,29 @@ package database
 
 import (
 	"context"
-	"database/sql"
 	"emailn/internal/domain/campaign"
 	"errors"
+	"github.com/jmoiron/sqlx"
 	"time"
 )
 
 type CampaignRepository struct {
-	DB *sql.DB
+	DB *sqlx.DB
 }
 
-func NewCampaignRepository(db *sql.DB) *CampaignRepository {
+func NewCampaignRepository(db *sqlx.DB) *CampaignRepository {
 	return &CampaignRepository{DB: db}
 }
 
 func (c *CampaignRepository) Get() ([]campaign.Campaign, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
-
 	query := "SELECT id, name FROM campaign"
-	rows, err := c.DB.QueryContext(ctx, query)
+	var campaigns []campaign.Campaign
+	err := c.DB.SelectContext(ctx, &campaigns, query)
 
 	if err != nil {
 		return nil, errors.New("erro ao executar a consulta")
-	}
-	defer rows.Close()
-
-	var campaigns []campaign.Campaign
-	for rows.Next() {
-		var campaign2 campaign.Campaign
-		err := rows.Scan(&campaign2.ID, &campaign2.Name) // Adicione outras colunas conforme necessário
-		if err != nil {
-			return nil, errors.New("erro ao escanear a linha")
-		}
-		campaigns = append(campaigns, campaign2)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, errors.New("erro ao percorrer as linhas do resultado")
 	}
 
 	return campaigns, nil
