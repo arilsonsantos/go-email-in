@@ -10,7 +10,7 @@ import (
 
 type EndpointFunc func(w http.ResponseWriter, r *http.Request) (interface{}, int, error)
 
-func HandleControllerError(endpointFunc EndpointFunc) http.HandlerFunc {
+func HandleError(endpointFunc EndpointFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		obj, status, err := endpointFunc(w, r)
 		if err != nil {

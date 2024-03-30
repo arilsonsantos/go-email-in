@@ -49,7 +49,7 @@ func TestHandleControllerError(t *testing.T) {
 			req := httptest.NewRequest("GET", "http://test.com", nil)
 			w := httptest.NewRecorder()
 
-			HandleControllerError(tt.endpoint)(w, req)
+			HandleError(tt.endpoint)(w, req)
 
 			resp := w.Result()
 			body := w.Body.String()

@@ -18,7 +18,7 @@ func Test_HandlerError_when_endpoints_return_error(t *testing.T) {
 		return nil, 0, internalerrors.ErrInternal
 	}
 
-	handerfunc := HandleControllerError(endpoint)
+	handerfunc := HandleError(endpoint)
 	req, _ := http.NewRequest("GET", "/", nil)
 	res := httptest.NewRecorder()
 
@@ -34,7 +34,7 @@ func Test_HandlerError_when_endpoints_return_business_error(t *testing.T) {
 		return nil, 0, errors.New("business error")
 	}
 
-	handerfunc := HandleControllerError(endpoint)
+	handerfunc := HandleError(endpoint)
 	req, _ := http.NewRequest("GET", "/", nil)
 	res := httptest.NewRecorder()
 
@@ -55,7 +55,7 @@ func Test_HandlerError_when_endpoints_return_object_success(t *testing.T) {
 
 		}
 
-		handerfunc := HandleControllerError(endpoint)
+		handerfunc := HandleError(endpoint)
 		req, _ := http.NewRequest("GET", "/", nil)
 		res := httptest.NewRecorder()
 
