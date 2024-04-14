@@ -3,8 +3,11 @@ package database
 import (
 	"context"
 	"emailn/internal/domain/campaign"
+	"emailn/internal/infrastructure/queries"
 	"errors"
+	"fmt"
 	"github.com/jmoiron/sqlx"
+	"log"
 	"time"
 )
 
@@ -19,9 +22,9 @@ func NewCampaignRepository(db *sqlx.DB) *CampaignRepository {
 func (c *CampaignRepository) Get() ([]campaign.Campaign, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
-	query := "SELECT id, name FROM campaign"
+
 	var campaigns []campaign.Campaign
-	err := c.DB.SelectContext(ctx, &campaigns, query)
+	err := c.DB.SelectContext(ctx, &campaigns, queries.SELECT_ID_NAME)
 
 	if err != nil {
 		return nil, errors.New("erro ao executar a consulta")
@@ -31,15 +34,29 @@ func (c *CampaignRepository) Get() ([]campaign.Campaign, error) {
 }
 
 func (c *CampaignRepository) GetBy(id string) (*campaign.Campaign, error) {
-	campaignResponse, err := campaign.NewCampaign("Nome A", "Conteúdo A", []string{"item1", "item2", "item3"})
+	var campaignResponse campaign.Campaign
+	err := c.DB.Get(&campaignResponse, queries.SELECT_ID_NAME_BY_ID, id)
+
 	if err != nil {
 		return nil, err
-
 	}
-	return campaignResponse, nil
+
+	return &campaignResponse, nil
 }
 
 func (c *CampaignRepository) Save(campaign *campaign.Campaign) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	//params := map[string]interface{}{"name": campaign.Name}
+	result, err := c.DB.NamedExecContext(ctx, queries.INSERT_CAMPAIGN_NAME, campaign)
+
+	if err != nil {
+		fmt.Println("Error inserting campaign:", err)
+		return nil
+	}
+	rowsAffected, err := result.RowsAffected()
+	log.Println("Rows affected:", rowsAffected)
 
 	return nil
 }

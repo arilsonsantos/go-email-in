@@ -4,7 +4,9 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/jmoiron/sqlx"
-	_ "github.com/mattn/go-sqlite3"
+	_ "github.com/lib/pq"
+	//_ "github.com/mattn/go-sqlite3"
+	//_ "github.com/jackc/pgx/v5"
 )
 
 type DB struct {
@@ -14,9 +16,12 @@ type DB struct {
 var dbConn = &DB{}
 
 func OpenConn() (*DB, error) {
-	sc := "database.db"
+	//sc := "database.db"
+	strDb := fmt.Sprintf("host=%s port=%d user=%s "+
+		"password=%s dbname=%s sslmode=disable",
+		host, port, user, password, dbname)
 
-	conn, err := sqlx.Open("sqlite3", sc)
+	conn, err := sqlx.Open("postgres", strDb)
 
 	if err != nil {
 		fmt.Println("Erro ao abrir o banco de dados:", err)

@@ -1,8 +1,8 @@
 POST http://localhost:3000/campaigns
 
 {
-    "name": "product 1",
-    "content": "content 1",
+    "name": "product 3",
+    "content": "content 3",
     "emails": ["email1@example.com"]
 }
 
@@ -10,3 +10,5 @@ POST http://localhost:3000/campaigns
 GET http://localhost:3000/campaigns
 
 
+###
+GET http://localhost:3000/campaigns/3
