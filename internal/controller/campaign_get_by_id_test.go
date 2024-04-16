@@ -15,7 +15,7 @@ import (
 func TestHandler_CampaignGetById_should_return_campaing(t *testing.T) {
 	assertions := assert.New(t)
 	campaignResponse := contract.NewCampaignResponseDto{
-		ID:      "123",
+		ID:      123,
 		Name:    "My campaign",
 		Content: "Body of the campaign",
 		Status:  campaign.Pending,

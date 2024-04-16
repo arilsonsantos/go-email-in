@@ -1,7 +1,7 @@
 package contract
 
 type NewCampaignResponseDto struct {
-	ID      string
+	ID      int
 	Name    string
 	Content string
 	Status  string

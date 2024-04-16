@@ -33,8 +33,9 @@ func (c *CampaignRepository) Get() ([]campaign.Campaign, error) {
 	return campaigns, nil
 }
 
-func (c *CampaignRepository) GetBy(id string) (*campaign.Campaign, error) {
+func (c *CampaignRepository) GetBy(id int) (*campaign.Campaign, error) {
 	var campaignResponse campaign.Campaign
+	//params := map[string]interface{}{"id": id}
 	err := c.DB.Get(&campaignResponse, queries.SELECT_ID_NAME_BY_ID, id)
 
 	if err != nil {
@@ -44,19 +45,21 @@ func (c *CampaignRepository) GetBy(id string) (*campaign.Campaign, error) {
 	return &campaignResponse, nil
 }
 
-func (c *CampaignRepository) Save(campaign *campaign.Campaign) error {
+func (c *CampaignRepository) Save(campaign *campaign.Campaign) (int, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
 	//params := map[string]interface{}{"name": campaign.Name}
+
 	result, err := c.DB.NamedExecContext(ctx, queries.INSERT_CAMPAIGN_NAME, campaign)
 
 	if err != nil {
 		fmt.Println("Error inserting campaign:", err)
-		return nil
+		return 0, err
 	}
 	rowsAffected, err := result.RowsAffected()
 	log.Println("Rows affected:", rowsAffected)
 
-	return nil
+	var x, _ = result.LastInsertId()
+	return int(x), nil
 }

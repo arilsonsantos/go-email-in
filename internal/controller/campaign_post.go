@@ -10,5 +10,5 @@ func (h *Handler) CampaignPost(w http.ResponseWriter, req *http.Request) (interf
 	var campaignDto contract.NewCampaignDto
 	_, _ = utils.ParseJSONRequest(req, &campaignDto)
 	id, err := h.CampaignService.CreateCampaign(campaignDto)
-	return map[string]string{"id": id}, http.StatusCreated, err
+	return map[string]int{"id": id}, http.StatusCreated, err
 }

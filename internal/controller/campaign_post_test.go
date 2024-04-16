@@ -28,7 +28,7 @@ func Test_CampaignPost_should_save_campaing(t *testing.T) {
 			return true
 		}
 		return false
-	})).Return("123", nil)
+	})).Return(123, nil)
 
 	handler := Handler{CampaignService: service}
 
@@ -43,8 +43,8 @@ func Test_CampaignPost_should_save_campaing(t *testing.T) {
 	obj, status, err := handler.CampaignPost(rr, req)
 	assertions.Equal(http.StatusCreated, status)
 	assertions.Nil(err)
-	assertions.Equal(map[string]string{"id": "123"}, obj)
-	assertions.Equal("123", obj.(map[string]string)["id"])
+	assertions.Equal(map[string]int{"id": 123}, obj)
+	assertions.Equal(123, obj.(map[string]int)["id"])
 
 }
 
@@ -56,7 +56,7 @@ func Test_CampaignPost_should_return_error(t *testing.T) {
 		Content: "Body of the campaign",
 		Emails:  []string{"teste@example.com"},
 	}
-	service.On("CreateCampaign", mock.Anything).Return("", fmt.Errorf("internal server error"))
+	service.On("CreateCampaign", mock.Anything).Return(0, fmt.Errorf("internal server error"))
 
 	handler := Handler{CampaignService: service}
 

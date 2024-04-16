@@ -4,6 +4,7 @@ import (
 	"emailn/internal/contract"
 	"emailn/internal/internalerrors"
 	"errors"
+	"fmt"
 	"reflect"
 	"testing"
 
@@ -15,9 +16,17 @@ type repositoryMock struct {
 	mock.Mock
 }
 
-func (r *repositoryMock) Save(campaign *Campaign) error {
+func (r *repositoryMock) Save(campaign *Campaign) (int, error) {
 	args := r.Called(campaign)
-	return args.Error(0)
+
+	// We'll need to do a bit of error checking to ensure the type assertion
+	// doesn't cause a panic
+	result, ok := args.Get(0).(int)
+	if !ok {
+		return 0, fmt.Errorf("error: return value is not int")
+	}
+
+	return result, args.Error(0)
 }
 
 func (r *repositoryMock) Get() ([]Campaign, error) {
@@ -26,7 +35,7 @@ func (r *repositoryMock) Get() ([]Campaign, error) {
 }
 
 // Cast para *Campaign
-func (r *repositoryMock) GetBy(id string) (*Campaign, error) {
+func (r *repositoryMock) GetBy(id int) (*Campaign, error) {
 	args := r.Called(id)
 	if args.Error(1) != nil {
 		return nil, args.Error(1)
@@ -136,7 +145,7 @@ func Test_repositoryMock_Save(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if err := tt.r.Save(tt.args.campaign); (err != nil) != tt.wantErr {
+			if _, err := tt.r.Save(tt.args.campaign); (err != nil) != tt.wantErr {
 				t.Errorf("repositoryMock.Save() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -167,12 +176,13 @@ func Test_Get(t *testing.T) {
 func Test_GetBy(t *testing.T) {
 	assertions := assert.New(t)
 	campaign, _ := NewCampaign(campaign.Name, campaign.Content, campaign.Emails)
+	campaign.ID = 123
 	repository := new(repositoryMock)
-	repository.On("GetBy", mock.MatchedBy(func(id string) bool {
-		return id == campaign.ID
+	repository.On("GetBy", mock.MatchedBy(func(id int) bool {
+		return id == 123
 	})).Return(campaign, nil)
 	service.Repository = repository
-	var campaignReturned, _ = service.GetBy(campaign.ID)
+	var campaignReturned, _ = service.GetBy(123)
 	assertions.Equal(campaign.ID, campaignReturned.ID)
 }
 
