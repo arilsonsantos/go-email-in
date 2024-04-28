@@ -17,9 +17,10 @@ import (
 func Api() {
 
 	r := chi.NewRouter()
+	r.Use(middleware.Logger) // <--<< Logger should come before Recoverer
+	r.Use(middleware.Recoverer)
 	r.Use(middleware.RequestID)
 	r.Use(middleware.RealIP)
-	r.Use(middleware.Logger)
 
 	conn, _ := db.OpenConn()
 	defer func(DB *sqlx.DB) { _ = DB.Close() }(conn.DB)

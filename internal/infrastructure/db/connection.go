@@ -17,7 +17,7 @@ func OpenConn() (*DB, error) {
 		"password=%s dbname=%s sslmode=disable",
 		host, port, user, password, dbname)
 
-	conn, err := sqlx.Open("postgres", strDb)
+	conn, err := sqlx.Open(driverName, strDb)
 
 	if err != nil {
 		fmt.Println("Erro ao abrir o banco de dados:", err)
