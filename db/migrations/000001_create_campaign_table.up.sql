@@ -1,24 +1,24 @@
-CREATE SCHEMA go;
+create schema go;
 
-CREATE SEQUENCE go.campaign_id_seq;
+create sequence go.campaign_id_seq;
 
-CREATE TABLE IF NOT EXISTS go.campaign (
-   id INT PRIMARY KEY DEFAULT nextval('go.campaign_id_seq'),
-   name TEXT,
-   created_at TIMESTAMP,
-   content TEXT,
-    email TEXT,
-   contact_ID INT,
-   status TEXT
+create table if not exists go.campaign
+(
+    id         int primary key default nextval('go.campaign_id_seq'),
+    name       text,
+    created_at timestamp default now(),
+    content    text,
+    email      text,
+    contact_ID int,
+    status     text
 );
 
+create sequence go.contact_id_seq;
 
-CREATE SEQUENCE go.contact_id_seq;
-
-CREATE TABLE IF NOT EXISTS go.contact
+create table if not exists go.contact
 (
-    id    INT  primary key default nextval('go.contact_id_seq'),
-    email TEXT,
-    campaign_id INT,
-    FOREIGN KEY (campaign_id) REFERENCES go.campaign(id)
+    id          int primary key default nextval('go.contact_id_seq'),
+    email       text,
+    campaign_id int,
+    foreign key (campaign_id) references go.campaign (id)
 );
