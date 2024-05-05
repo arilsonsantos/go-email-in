@@ -6,15 +6,19 @@ const (
                                 cp.id, 
                                 cp.name, 
                                 cp.created_at as createdAt, 
-                                cp.content, cp.status
+                                cp.content, 
+                                cp.status, 
+                                ct.id IDEmail, 
+                                ct.email 
                             FROM 
-                                go.campaign cp 
+                                go.campaign cp join go.contact ct on ct.campaign_id = cp.id
                             WHERE 
                                 cp.id = $1`
 	SELECT_ALL = `select cp.id, 
                                 cp.name, 
                                 cp.created_at as createdAt, 
-                                cp.content, cp.status, 
+                                cp.content, 
+                                cp.status, 
                                 ct.id IDEmail, 
                                 ct.email 
                             from go.campaign cp join go.contact ct on ct.campaign_id = cp.id

@@ -40,10 +40,18 @@ func (s *ServiceImpl) GetBy(id int) (*contract.NewCampaignResponseDto, error) {
 		return nil, internalerrors.ErrInternal
 	}
 
+	contacts := make([]contract.NewContactDto, len(campaign.Contacts))
+	for i, contact := range campaign.Contacts {
+		contacts[i] = contract.NewContactDto{
+			Id:    contact.ID,
+			Email: contact.Email,
+		}
+	}
 	return &contract.NewCampaignResponseDto{
-		ID:      campaign.ID,
-		Name:    campaign.Name,
-		Content: campaign.Content,
-		Status:  campaign.Status,
+		ID:       campaign.ID,
+		Name:     campaign.Name,
+		Content:  campaign.Content,
+		Status:   campaign.Status,
+		Contacts: contacts,
 	}, nil
 }

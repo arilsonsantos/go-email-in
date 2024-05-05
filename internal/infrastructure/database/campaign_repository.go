@@ -29,6 +29,46 @@ func (c *CampaignRepository) Get() ([]campaign.Campaign, error) {
 
 	rows, err := c.DB.Query(queries.SELECT_ALL)
 
+	campaignResponsePtr, err := getCampaign(rows, err)
+	campaignResponse := *campaignResponsePtr
+	return campaignResponse, nil
+}
+
+func (c *CampaignRepository) GetBy(id int) (*campaign.Campaign, error) {
+	rows, err := c.DB.Query(queries.SELECT_BY_ID, id)
+	if err != nil {
+		return nil, err
+	}
+
+	campaignResponsePtr, err := getCampaign(rows, err)
+
+	if err != nil {
+		return nil, err
+	}
+	campaignResponse := *campaignResponsePtr
+	return &campaignResponse[0], nil
+}
+
+func (c *CampaignRepository) Save(ctx context.Context, campaign *campaign.Campaign) (int, error) {
+	_, cancel := context.WithTimeout(ctx, 30*time.Second)
+	defer cancel()
+
+	//params := map[string]interface{}{"name": campaign.Name}
+
+	result, err := c.DB.ExecContext(ctx, queries.INSERT_CAMPAIGN_NAME, campaign)
+
+	if err != nil {
+		fmt.Println("Error inserting campaign:", err)
+		return 0, err
+	}
+	rowsAffected, err := result.RowsAffected()
+	log.Println("Rows affected:", rowsAffected)
+
+	var x, _ = result.LastInsertId()
+	return int(x), nil
+}
+
+func getCampaign(rows *sql.Rows, err error) (*[]campaign.Campaign, error) {
 	campaignsMap := make(map[int]campaign.Campaign)
 	for rows.Next() {
 		var tempCampaign campaign.Campaign
@@ -56,40 +96,5 @@ func (c *CampaignRepository) Get() ([]campaign.Campaign, error) {
 		return nil, errors.New("erro ao executar a consulta")
 	}
 
-	return campaignsToSlice, nil
-}
-
-func (c *CampaignRepository) GetBy(id int) (*campaign.Campaign, error) {
-	var campaignResponse campaign.Campaign
-	err := c.DB.QueryRow(queries.SELECT_BY_ID, id).Scan(
-		&campaignResponse.ID,
-		&campaignResponse.Name,
-		&campaignResponse.CreatedAt,
-		&campaignResponse.Content,
-		&campaignResponse.Status)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return &campaignResponse, nil
-}
-
-func (c *CampaignRepository) Save(ctx context.Context, campaign *campaign.Campaign) (int, error) {
-	_, cancel := context.WithTimeout(ctx, 30*time.Second)
-	defer cancel()
-
-	//params := map[string]interface{}{"name": campaign.Name}
-
-	result, err := c.DB.ExecContext(ctx, queries.INSERT_CAMPAIGN_NAME, campaign)
-
-	if err != nil {
-		fmt.Println("Error inserting campaign:", err)
-		return 0, err
-	}
-	rowsAffected, err := result.RowsAffected()
-	log.Println("Rows affected:", rowsAffected)
-
-	var x, _ = result.LastInsertId()
-	return int(x), nil
+	return &campaignsToSlice, nil
 }
