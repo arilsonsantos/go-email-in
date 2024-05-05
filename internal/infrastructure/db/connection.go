@@ -1,13 +1,13 @@
 package db
 
 import (
+	"database/sql"
 	"fmt"
-	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 )
 
 type DB struct {
-	DB *sqlx.DB
+	DB *sql.DB
 }
 
 var dbConn = &DB{}
@@ -17,7 +17,7 @@ func OpenConn() (*DB, error) {
 		"password=%s dbname=%s sslmode=disable",
 		host, port, user, password, dbname)
 
-	conn, err := sqlx.Open(driverName, strDb)
+	conn, err := sql.Open(driverName, strDb)
 
 	if err != nil {
 		fmt.Println("Erro ao abrir o banco de dados:", err)

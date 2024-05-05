@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"database/sql"
 	"emailn/internal/controller"
 	"emailn/internal/controller/utils"
 	"emailn/internal/domain/campaign"
@@ -24,7 +25,7 @@ func Api() {
 	r.Use(middleware.RealIP)
 
 	conn, _ := db.OpenConn()
-	defer func(DB *sqlx.DB) { _ = DB.Close() }(conn.DB)
+	defer func(DB *sql.DB) { _ = DB.Close() }(conn.DB)
 
 	//initDB(conn.DB)
 

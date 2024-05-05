@@ -2,21 +2,21 @@ package database
 
 import (
 	"context"
+	"database/sql"
 	"emailn/internal/domain/campaign"
 	"emailn/internal/infrastructure/queries"
 	"errors"
 	"fmt"
-	"github.com/jmoiron/sqlx"
 	"log"
 	"time"
 )
 
 type CampaignRepository struct {
 	ctx context.Context
-	DB  *sqlx.DB
+	DB  *sql.DB
 }
 
-func NewCampaignRepository(ctx context.Context, db *sqlx.DB) *CampaignRepository {
+func NewCampaignRepository(ctx context.Context, db *sql.DB) *CampaignRepository {
 	return &CampaignRepository{
 		ctx: ctx,
 		DB:  db,
@@ -27,11 +27,8 @@ func (c *CampaignRepository) Get() ([]campaign.Campaign, error) {
 	_, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	rows, err := c.DB.Queryx(queries.SELECT_ALL)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
+	rows, err := c.DB.Query(queries.SELECT_ALL)
+
 	campaignsMap := make(map[int]campaign.Campaign)
 	for rows.Next() {
 		var tempCampaign campaign.Campaign
@@ -50,22 +47,26 @@ func (c *CampaignRepository) Get() ([]campaign.Campaign, error) {
 		}
 	}
 
-	campaignsToSliece := make([]campaign.Campaign, 0, len(campaignsMap))
+	campaignsToSlice := make([]campaign.Campaign, 0, len(campaignsMap))
 	for _, c := range campaignsMap {
-		campaignsToSliece = append(campaignsToSliece, c)
+		campaignsToSlice = append(campaignsToSlice, c)
 	}
 
 	if err != nil {
 		return nil, errors.New("erro ao executar a consulta")
 	}
 
-	return campaignsToSliece, nil
+	return campaignsToSlice, nil
 }
 
 func (c *CampaignRepository) GetBy(id int) (*campaign.Campaign, error) {
 	var campaignResponse campaign.Campaign
-	//params := map[string]interface{}{"id": id}
-	err := c.DB.Get(&campaignResponse, queries.SELECT_ID_NAME_BY_ID, id)
+	err := c.DB.QueryRow(queries.SELECT_BY_ID, id).Scan(
+		&campaignResponse.ID,
+		&campaignResponse.Name,
+		&campaignResponse.CreatedAt,
+		&campaignResponse.Content,
+		&campaignResponse.Status)
 
 	if err != nil {
 		return nil, err
@@ -80,7 +81,7 @@ func (c *CampaignRepository) Save(ctx context.Context, campaign *campaign.Campai
 
 	//params := map[string]interface{}{"name": campaign.Name}
 
-	result, err := c.DB.NamedExecContext(ctx, queries.INSERT_CAMPAIGN_NAME, campaign)
+	result, err := c.DB.ExecContext(ctx, queries.INSERT_CAMPAIGN_NAME, campaign)
 
 	if err != nil {
 		fmt.Println("Error inserting campaign:", err)

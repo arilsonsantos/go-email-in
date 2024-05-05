@@ -2,8 +2,16 @@ package queries
 
 const (
 	INSERT_CAMPAIGN_NAME = "INSERT INTO go.campaign (name, created_at) VALUES (:name, now()) RETURNING id"
-	SELECT_ID_NAME_BY_ID = "SELECT id, name FROM go.campaign WHERE id = :id"
-	SELECT_ALL           = `select cp.id, 
+	SELECT_BY_ID         = `SELECT 
+                                cp.id, 
+                                cp.name, 
+                                cp.created_at as createdAt, 
+                                cp.content, cp.status
+                            FROM 
+                                go.campaign cp 
+                            WHERE 
+                                cp.id = $1`
+	SELECT_ALL = `select cp.id, 
                                 cp.name, 
                                 cp.created_at as createdAt, 
                                 cp.content, cp.status, 
