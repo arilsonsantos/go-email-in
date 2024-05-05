@@ -1,7 +1,7 @@
 package queries
 
 const (
-	INSERT_CAMPAIGN_NAME = "INSERT INTO go.campaign (name, created_at) VALUES (:name, now()) RETURNING id"
+	INSERT_CAMPAIGN_NAME = "INSERT INTO go.campaign (id, name, created_at, content, status) VALUES ($1, $2, $3, $4, $5) RETURNING id"
 	SELECT_BY_ID         = `SELECT 
                                 cp.id, 
                                 cp.name, 

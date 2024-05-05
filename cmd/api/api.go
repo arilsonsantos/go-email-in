@@ -40,8 +40,6 @@ func Api() {
 		CampaignService: &service,
 	}
 
-	//initDB(dbConn)
-
 	r.Post("/campaigns", controller.HandleError(handlers.CampaignPost))
 	r.Get("/campaigns", controller.HandleError(handlers.CampaignGet))
 	r.Get("/campaigns/{id}", controller.HandleError(handlers.CampaignGetById))

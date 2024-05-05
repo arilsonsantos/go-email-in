@@ -21,8 +21,8 @@ func (s *ServiceImpl) CreateCampaign(ctx context.Context, dto contract.NewCampai
 	if err != nil {
 		return 0, err
 	}
-	var result int
-	result, err = s.Repository.Save(ctx, campaign)
+
+	result, err := s.Repository.Save(ctx, campaign)
 	if err != nil {
 		return 0, internalerrors.ErrInternal
 	}
