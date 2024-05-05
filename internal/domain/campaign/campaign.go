@@ -6,16 +6,18 @@ import (
 )
 
 type Contact struct {
-	Email string `validate:"required,email"`
+	ID         int    `sql:"id"`
+	Email      string `validate:"required,email" sql:"email" json:"email"`
+	CampaignID int    `sql:"campaign_id"`
 }
 
 type Campaign struct {
 	ID        int       //`validate:"required"`
-	Name      string    `validate:"min=3,max=30"`
-	CreatedAt time.Time `validate:"required" db:"created_at default:now()"`
-	Content   string    `validate:"min=5,max=100"`
-	Contacts  []Contact `validate:"min=1,dive"`
-	Status    string
+	Name      string    `validate:"min=3,max=30" json:"name"`
+	CreatedAt time.Time `validate:"required" sql:"created_at" json:"created_at"`
+	Content   string    `validate:"min=5,max=100" json:"content"`
+	Status    string    `sql:"status" json:"status"`
+	Contacts  []Contact `validate:"min=1,dive" json:"contacts"`
 }
 
 const (

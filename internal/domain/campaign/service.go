@@ -1,12 +1,13 @@
 package campaign
 
 import (
+	"context"
 	"emailn/internal/contract"
 	"emailn/internal/internalerrors"
 )
 
 type Service interface {
-	CreateCampaign(dto contract.NewCampaignDto) (int, error)
+	CreateCampaign(ctx context.Context, dto contract.NewCampaignDto) (int, error)
 	GetCampaigns() ([]Campaign, error)
 	GetBy(id int) (*contract.NewCampaignResponseDto, error)
 }
@@ -15,13 +16,13 @@ type ServiceImpl struct {
 	Repository Repository
 }
 
-func (s *ServiceImpl) CreateCampaign(dto contract.NewCampaignDto) (int, error) {
+func (s *ServiceImpl) CreateCampaign(ctx context.Context, dto contract.NewCampaignDto) (int, error) {
 	campaign, err := NewCampaign(dto.Name, dto.Content, dto.Emails)
 	if err != nil {
 		return 0, err
 	}
 	var result int
-	result, err = s.Repository.Save(campaign)
+	result, err = s.Repository.Save(ctx, campaign)
 	if err != nil {
 		return 0, internalerrors.ErrInternal
 	}

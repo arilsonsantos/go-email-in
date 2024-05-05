@@ -1,6 +1,7 @@
 package mocks
 
 import (
+	"context"
 	"emailn/internal/contract"
 	"emailn/internal/domain/campaign"
 	"fmt"
@@ -8,6 +9,7 @@ import (
 )
 
 type CampaignServiceMock struct {
+	context.Context
 	mock.Mock
 }
 
@@ -25,7 +27,7 @@ func (r *CampaignServiceMock) GetBy(id int) (*contract.NewCampaignResponseDto, e
 	return args.Get(0).(*contract.NewCampaignResponseDto), nil
 }
 
-func (r *CampaignServiceMock) CreateCampaign(dto contract.NewCampaignDto) (int, error) {
+func (r *CampaignServiceMock) CreateCampaign(ctx context.Context, dto contract.NewCampaignDto) (int, error) {
 	args := r.Called(dto)
 	return args.Get(0).(int), args.Error(1)
 }

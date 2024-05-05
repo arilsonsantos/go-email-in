@@ -1,6 +1,7 @@
 package campaign
 
 import (
+	"context"
 	"emailn/internal/contract"
 	"emailn/internal/internalerrors"
 	"errors"
@@ -16,7 +17,7 @@ type repositoryMock struct {
 	mock.Mock
 }
 
-func (r *repositoryMock) Save(campaign *Campaign) (int, error) {
+func (r *repositoryMock) Save(ctx context.Context, campaign *Campaign) (int, error) {
 	args := r.Called(campaign)
 
 	// We'll need to do a bit of error checking to ensure the type assertion
@@ -57,6 +58,7 @@ var (
 
 func Test_CreateCampaign(t *testing.T) {
 	assertions := assert.New(t)
+	ctx := context.Background()
 
 	t.Run("Save a new campaign", func(t *testing.T) {
 		campaign := contract.NewCampaignDto{
@@ -72,7 +74,8 @@ func Test_CreateCampaign(t *testing.T) {
 			return true
 		})).Return(nil)
 
-		createCampaign, err := service.CreateCampaign(campaign)
+		ctx := context.Background()
+		createCampaign, err := service.CreateCampaign(ctx, campaign)
 		if err != nil {
 			return
 		}
@@ -95,7 +98,7 @@ func Test_CreateCampaign(t *testing.T) {
 			return true
 		})).Return(nil)
 
-		createCampaign, err := service.CreateCampaign(campaign)
+		createCampaign, err := service.CreateCampaign(ctx, campaign)
 
 		assertions.Empty(createCampaign)
 		assertions.NotNil(err)
@@ -103,7 +106,7 @@ func Test_CreateCampaign(t *testing.T) {
 
 	t.Run("Create a new campaign - empty name", func(t *testing.T) {
 		campaign.Name = ""
-		_, err := service.CreateCampaign(campaign)
+		_, err := service.CreateCampaign(ctx, campaign)
 
 		assertions.NotNil(err)
 		assertions.Equal("name is less than the minimum 3", err.Error())
@@ -112,6 +115,8 @@ func Test_CreateCampaign(t *testing.T) {
 
 func Test_CreateCampaign_ValidateRepository(t *testing.T) {
 	assertions := assert.New(t)
+	ctx := context.Background()
+
 	campaign = contract.NewCampaignDto{
 		Name:    "My campaign",
 		Content: "Body of the campaign",
@@ -122,7 +127,7 @@ func Test_CreateCampaign_ValidateRepository(t *testing.T) {
 	repository = new(repositoryMock)
 	service = ServiceImpl{repository}
 	repository.On("Save", mock.Anything).Return(errors.New("error"))
-	_, err := service.CreateCampaign(campaign)
+	_, err := service.CreateCampaign(ctx, campaign)
 
 	assertions.NotNil(err)
 	assertions.Truef(
@@ -134,6 +139,7 @@ func Test_CreateCampaign_ValidateRepository(t *testing.T) {
 }
 
 func Test_repositoryMock_Save(t *testing.T) {
+	ctx := context.Background()
 	type args struct {
 		campaign *Campaign
 	}
@@ -145,7 +151,7 @@ func Test_repositoryMock_Save(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if _, err := tt.r.Save(tt.args.campaign); (err != nil) != tt.wantErr {
+			if _, err := tt.r.Save(ctx, tt.args.campaign); (err != nil) != tt.wantErr {
 				t.Errorf("repositoryMock.Save() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})

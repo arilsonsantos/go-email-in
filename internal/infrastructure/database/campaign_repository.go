@@ -12,25 +12,54 @@ import (
 )
 
 type CampaignRepository struct {
-	DB *sqlx.DB
+	ctx context.Context
+	DB  *sqlx.DB
 }
 
-func NewCampaignRepository(db *sqlx.DB) *CampaignRepository {
-	return &CampaignRepository{DB: db}
+func NewCampaignRepository(ctx context.Context, db *sqlx.DB) *CampaignRepository {
+	return &CampaignRepository{
+		ctx: ctx,
+		DB:  db,
+	}
 }
 
 func (c *CampaignRepository) Get() ([]campaign.Campaign, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	_, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	var campaigns []campaign.Campaign
-	err := c.DB.SelectContext(ctx, &campaigns, queries.SELECT_ID_NAME)
+	rows, err := c.DB.Queryx(queries.SELECT_ALL)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	campaignsMap := make(map[int]campaign.Campaign)
+	for rows.Next() {
+		var tempCampaign campaign.Campaign
+		var tempContact campaign.Contact
+		err = rows.Scan(&tempCampaign.ID, &tempCampaign.Name, &tempCampaign.CreatedAt, &tempCampaign.Content, &tempCampaign.Status, &tempContact.ID, &tempContact.Email)
+		if err != nil {
+			return nil, errors.New("erro ao executar a consulta")
+		}
+		currentCampaign, exists := campaignsMap[tempCampaign.ID]
+		if exists {
+			currentCampaign.Contacts = append(currentCampaign.Contacts, tempContact)
+			campaignsMap[tempCampaign.ID] = currentCampaign
+		} else {
+			tempCampaign.Contacts = append(tempCampaign.Contacts, tempContact)
+			campaignsMap[tempCampaign.ID] = tempCampaign
+		}
+	}
+
+	campaignsToSliece := make([]campaign.Campaign, 0, len(campaignsMap))
+	for _, c := range campaignsMap {
+		campaignsToSliece = append(campaignsToSliece, c)
+	}
 
 	if err != nil {
 		return nil, errors.New("erro ao executar a consulta")
 	}
 
-	return campaigns, nil
+	return campaignsToSliece, nil
 }
 
 func (c *CampaignRepository) GetBy(id int) (*campaign.Campaign, error) {
@@ -45,8 +74,8 @@ func (c *CampaignRepository) GetBy(id int) (*campaign.Campaign, error) {
 	return &campaignResponse, nil
 }
 
-func (c *CampaignRepository) Save(campaign *campaign.Campaign) (int, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+func (c *CampaignRepository) Save(ctx context.Context, campaign *campaign.Campaign) (int, error) {
+	_, cancel := context.WithTimeout(ctx, 30*time.Second)
 	defer cancel()
 
 	//params := map[string]interface{}{"name": campaign.Name}

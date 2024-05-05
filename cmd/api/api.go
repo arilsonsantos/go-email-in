@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"emailn/internal/controller"
 	"emailn/internal/controller/utils"
 	"emailn/internal/domain/campaign"
@@ -27,7 +28,8 @@ func Api() {
 
 	//initDB(conn.DB)
 
-	repo := database.NewCampaignRepository(conn.DB)
+	ctx := context.Background()
+	repo := database.NewCampaignRepository(ctx, conn.DB)
 
 	service := campaign.ServiceImpl{
 		Repository: repo,

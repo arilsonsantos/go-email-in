@@ -1,7 +1,9 @@
 package campaign
 
+import "context"
+
 type Repository interface {
-	Save(campaign *Campaign) (int, error)
+	Save(ctx context.Context, campaign *Campaign) (int, error)
 	Get() ([]Campaign, error)
 	GetBy(id int) (*Campaign, error)
 }
