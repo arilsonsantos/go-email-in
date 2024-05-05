@@ -23,15 +23,14 @@ func NewCampaignRepository(ctx context.Context, db *sql.DB) *CampaignRepository 
 	}
 }
 
-func (c *CampaignRepository) Get() ([]campaign.Campaign, error) {
+func (c *CampaignRepository) Get() (*[]campaign.Campaign, error) {
 	_, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
 	rows, err := c.DB.Query(queries.SELECT_ALL)
 
 	campaignResponsePtr, err := getCampaign(rows, err)
-	campaignResponse := *campaignResponsePtr
-	return campaignResponse, nil
+	return campaignResponsePtr, nil
 }
 
 func (c *CampaignRepository) GetBy(id int) (*campaign.Campaign, error) {
@@ -52,8 +51,6 @@ func (c *CampaignRepository) GetBy(id int) (*campaign.Campaign, error) {
 func (c *CampaignRepository) Save(ctx context.Context, campaign *campaign.Campaign) (int, error) {
 	_, cancel := context.WithTimeout(ctx, 30*time.Second)
 	defer cancel()
-
-	//params := map[string]interface{}{"name": campaign.Name}
 
 	result, err := c.DB.ExecContext(ctx, queries.INSERT_CAMPAIGN_NAME, campaign)
 

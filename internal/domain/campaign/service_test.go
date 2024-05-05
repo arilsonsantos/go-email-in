@@ -30,7 +30,7 @@ func (r *repositoryMock) Save(ctx context.Context, campaign *Campaign) (int, err
 	return result, args.Error(0)
 }
 
-func (r *repositoryMock) Get() ([]Campaign, error) {
+func (r *repositoryMock) Get() (*[]Campaign, error) {
 	// args := r.Called(campaign)
 	return nil, nil
 }

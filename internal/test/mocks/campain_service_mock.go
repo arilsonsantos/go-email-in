@@ -13,7 +13,7 @@ type CampaignServiceMock struct {
 	mock.Mock
 }
 
-func (r *CampaignServiceMock) GetCampaigns() ([]campaign.Campaign, error) {
+func (r *CampaignServiceMock) GetCampaigns() (*[]campaign.Campaign, error) {
 	args := r.Called()
 	fmt.Printf("test")
 	return nil, args.Error(1)

@@ -8,7 +8,7 @@ import (
 
 type Service interface {
 	CreateCampaign(ctx context.Context, dto contract.NewCampaignDto) (int, error)
-	GetCampaigns() ([]Campaign, error)
+	GetCampaigns() (*[]Campaign, error)
 	GetBy(id int) (*contract.NewCampaignResponseDto, error)
 }
 
@@ -29,7 +29,7 @@ func (s *ServiceImpl) CreateCampaign(ctx context.Context, dto contract.NewCampai
 	return result, nil
 }
 
-func (s *ServiceImpl) GetCampaigns() ([]Campaign, error) {
+func (s *ServiceImpl) GetCampaigns() (*[]Campaign, error) {
 	return s.Repository.Get()
 }
 
