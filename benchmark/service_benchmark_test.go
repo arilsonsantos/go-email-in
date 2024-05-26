@@ -21,6 +21,6 @@ func BenchmarkGetCampaigns(b *testing.B) {
 	b.ResetTimer() // Reseta o timer do benchmark para não incluir o tempo de setup
 
 	for i := 0; i < b.N; i++ {
-		_, _ = service1.GetBy(21)
+		_, _ = service1.GetBy(20)
 	}
 }

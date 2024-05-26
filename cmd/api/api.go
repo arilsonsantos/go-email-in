@@ -10,8 +10,6 @@ import (
 	"emailn/internal/infrastructure/db"
 	"net/http"
 
-	"github.com/jmoiron/sqlx"
-
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 )
@@ -26,8 +24,6 @@ func Api() {
 
 	conn, _ := db.OpenConn()
 	defer func(DB *sql.DB) { _ = DB.Close() }(conn.DB)
-
-	//initDB(conn.DB)
 
 	ctx := context.Background()
 	repo := database.NewCampaignRepository(ctx, conn.DB)
@@ -49,23 +45,4 @@ func Api() {
 		utils.HandleError500(err)
 	}
 
-}
-
-func initDB(dbConn *sqlx.DB) {
-	_, _ = dbConn.Exec(`
-		CREATE TABLE IF NOT EXISTS Contact (
-	  	id TEXT PRIMARY KEY,
-	  	email TEXT)
-	`)
-
-	_, _ = dbConn.Exec(`
-		CREATE TABLE IF NOT EXISTS Campaign (
-        id TEXT PRIMARY KEY,
-        name TEXT,
-        created_at DATETIME,
-        content TEXT,
-        contact_ID TEXT,
-        status TEXT
-        --FOREIGN KEY (ContactID) REFERENCES Contact(ID))   	
-	`)
 }

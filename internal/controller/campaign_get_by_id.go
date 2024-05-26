@@ -10,7 +10,7 @@ import (
 func (h *Handler) CampaignGetById(w http.ResponseWriter, req *http.Request) (interface{}, int, error) {
 	id := chi.URLParam(req, "id")
 	idInt, _ := strconv.Atoi(id)
-	campaign, err := h.CampaignService.GetBy(idInt)
+	campaign, err := h.CampaignService.GetBy(int(idInt))
 
 	if campaign == nil {
 		return nil, http.StatusNoContent, internalerrors.ErrNoContent

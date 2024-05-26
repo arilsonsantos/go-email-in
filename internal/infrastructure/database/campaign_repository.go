@@ -7,7 +7,6 @@ import (
 	"emailn/internal/infrastructure/queries"
 	"errors"
 	"fmt"
-	"log"
 	"time"
 )
 
@@ -26,10 +25,9 @@ func NewCampaignRepository(ctx context.Context, db *sql.DB) *CampaignRepository 
 func (c *CampaignRepository) Get() (*[]campaign.Campaign, error) {
 	_, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
-
 	rows, err := c.DB.Query(queries.SELECT_ALL)
-
 	campaignResponsePtr, err := getCampaign(rows, err)
+
 	return campaignResponsePtr, nil
 }
 
@@ -44,25 +42,35 @@ func (c *CampaignRepository) GetBy(id int) (*campaign.Campaign, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	campaignResponse := *campaignResponsePtr
+
 	return &campaignResponse[0], nil
 }
 
-func (c *CampaignRepository) Save(ctx context.Context, campaign *campaign.Campaign) (int, error) {
+func (c *CampaignRepository) Save(ctx context.Context, campaingInput *campaign.Campaign) (int, error) {
 	_, cancel := context.WithTimeout(ctx, 30*time.Second)
 	defer cancel()
+	tx, err := c.DB.Begin()
+	var campaignId int
+	err = c.DB.QueryRowContext(ctx, queries.INSERT_CAMPAIGN,
+		campaingInput.Name,
+		campaingInput.CreatedAt,
+		campaingInput.Content,
+		campaingInput.Status).Scan(&campaignId)
 
-	result, err := c.DB.ExecContext(ctx, queries.INSERT_CAMPAIGN_NAME, campaign)
+	for _, contact := range campaingInput.Contacts {
+		_, err = c.DB.ExecContext(ctx, queries.INSERT_CONTACT, contact.Email, campaignId)
+	}
+	err = tx.Commit()
 
 	if err != nil {
+		_ = tx.Rollback()
 		fmt.Println("Error inserting campaign:", err)
 		return 0, err
 	}
-	rowsAffected, err := result.RowsAffected()
-	log.Println("Rows affected:", rowsAffected)
 
-	var x, _ = result.LastInsertId()
-	return int(x), nil
+	return campaignId, nil
 }
 
 func getCampaign(rows *sql.Rows, err error) (*[]campaign.Campaign, error) {
@@ -70,10 +78,19 @@ func getCampaign(rows *sql.Rows, err error) (*[]campaign.Campaign, error) {
 	for rows.Next() {
 		var tempCampaign campaign.Campaign
 		var tempContact campaign.Contact
-		err = rows.Scan(&tempCampaign.ID, &tempCampaign.Name, &tempCampaign.CreatedAt, &tempCampaign.Content, &tempCampaign.Status, &tempContact.ID, &tempContact.Email)
+		err = rows.Scan(
+			&tempCampaign.ID,
+			&tempCampaign.Name,
+			&tempCampaign.CreatedAt,
+			&tempCampaign.Content,
+			&tempCampaign.Status,
+			&tempContact.ID,
+			&tempContact.Email)
+
 		if err != nil {
 			return nil, errors.New("erro ao executar a consulta")
 		}
+
 		currentCampaign, exists := campaignsMap[tempCampaign.ID]
 		if exists {
 			currentCampaign.Contacts = append(currentCampaign.Contacts, tempContact)

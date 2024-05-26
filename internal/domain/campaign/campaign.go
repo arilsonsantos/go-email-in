@@ -7,16 +7,16 @@ import (
 
 type Contact struct {
 	ID         int    `sql:"id"`
-	Email      string `validate:"required,email" sql:"email" json:"email"`
+	Email      string `validate:"email" db:"email" json:"email"`
 	CampaignID int    `sql:"campaign_id"`
 }
 
 type Campaign struct {
 	ID        int       //`validate:"required"`
 	Name      string    `validate:"min=3,max=30" json:"name"`
-	CreatedAt time.Time `validate:"required" sql:"created_at" json:"created_at"`
+	CreatedAt time.Time `validate:"required" db:"created_at" json:"created_at"`
 	Content   string    `validate:"min=5,max=100" json:"content"`
-	Status    string    `sql:"status" json:"status"`
+	Status    string    `db:"status" json:"status"`
 	Contacts  []Contact `validate:"min=1,dive" json:"contacts"`
 }
 

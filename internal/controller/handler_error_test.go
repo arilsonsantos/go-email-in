@@ -12,39 +12,39 @@ import (
 )
 
 func Test_HandlerError_when_endpoints_return_error(t *testing.T) {
-	assert := assert.New(t)
+	ast := assert.New(t)
 
 	endpoint := func(w http.ResponseWriter, req *http.Request) (interface{}, int, error) {
 		return nil, 0, internalerrors.ErrInternal
 	}
 
-	handerfunc := HandleError(endpoint)
+	handlerFunc := HandleError(endpoint)
 	req, _ := http.NewRequest("GET", "/", nil)
 	res := httptest.NewRecorder()
 
-	handerfunc.ServeHTTP(res, req)
-	assert.Equal(http.StatusInternalServerError, res.Code)
-	assert.Contains(res.Body.String(), internalerrors.ErrInternal.Error())
+	handlerFunc.ServeHTTP(res, req)
+	ast.Equal(http.StatusInternalServerError, res.Code)
+	ast.Contains(res.Body.String(), internalerrors.ErrInternal.Error())
 }
 
 func Test_HandlerError_when_endpoints_return_business_error(t *testing.T) {
-	assert := assert.New(t)
+	ast := assert.New(t)
 
 	endpoint := func(w http.ResponseWriter, req *http.Request) (interface{}, int, error) {
 		return nil, 0, errors.New("business error")
 	}
 
-	handerfunc := HandleError(endpoint)
+	handlerFunc := HandleError(endpoint)
 	req, _ := http.NewRequest("GET", "/", nil)
 	res := httptest.NewRecorder()
 
-	handerfunc.ServeHTTP(res, req)
-	assert.Equal(http.StatusBadRequest, res.Code)
+	handlerFunc.ServeHTTP(res, req)
+	ast.Equal(http.StatusBadRequest, res.Code)
 }
 
 func Test_HandlerError_when_endpoints_return_object_success(t *testing.T) {
 	{
-		assert := assert.New(t)
+		ast := assert.New(t)
 
 		type bodyExpeted struct {
 			Id int
@@ -55,15 +55,15 @@ func Test_HandlerError_when_endpoints_return_object_success(t *testing.T) {
 
 		}
 
-		handerfunc := HandleError(endpoint)
+		handlerFunc := HandleError(endpoint)
 		req, _ := http.NewRequest("GET", "/", nil)
 		res := httptest.NewRecorder()
 
-		handerfunc.ServeHTTP(res, req)
+		handlerFunc.ServeHTTP(res, req)
 
-		assert.Equal(http.StatusCreated, res.Code)
+		ast.Equal(http.StatusCreated, res.Code)
 		objReturned := bodyExpeted{}
 		json.Unmarshal(res.Body.Bytes(), &objReturned)
-		assert.Equal(objExpected, objReturned)
+		ast.Equal(objExpected, objReturned)
 	}
 }
