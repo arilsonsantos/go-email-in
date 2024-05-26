@@ -1,6 +1,6 @@
 package contract
 
-type NewCampaignDto struct {
+type NewPostCampaignDto struct {
 	ID      int
 	Name    string
 	Content string

@@ -18,12 +18,12 @@ import (
 func Test_CampaignPost_should_save_campaing(t *testing.T) {
 	assertions := assert.New(t)
 	service := new(mocks.CampaignServiceMock)
-	body := contract.NewCampaignDto{
+	body := contract.NewPostCampaignDto{
 		Name:    "My campaign",
 		Content: "Body of the campaign",
 		Emails:  []string{"teste@example.com"},
 	}
-	service.On("CreateCampaign", mock.MatchedBy(func(dto contract.NewCampaignDto) bool {
+	service.On("CreateCampaign", mock.MatchedBy(func(dto contract.NewPostCampaignDto) bool {
 		if dto.Name == body.Name && dto.Content == body.Content && len(dto.Emails) == len(body.Emails) {
 			return true
 		}
@@ -51,7 +51,7 @@ func Test_CampaignPost_should_save_campaing(t *testing.T) {
 func Test_CampaignPost_should_return_error(t *testing.T) {
 	assertions := assert.New(t)
 	service := new(mocks.CampaignServiceMock)
-	body := contract.NewCampaignDto{
+	body := contract.NewPostCampaignDto{
 		Name:    "My campaign",
 		Content: "Body of the campaign",
 		Emails:  []string{"teste@example.com"},

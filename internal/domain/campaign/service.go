@@ -7,16 +7,16 @@ import (
 )
 
 type Service interface {
-	CreateCampaign(ctx context.Context, dto contract.NewCampaignDto) (int, error)
-	GetCampaigns() (*[]contract.NewCampaignResponseDto, error)
-	GetBy(id int) (*contract.NewCampaignResponseDto, error)
+	CreateCampaign(ctx context.Context, dto contract.NewPostCampaignDto) (int, error)
+	GetCampaigns() (*[]contract.NewGetCampaignDto, error)
+	GetBy(id int) (*contract.NewGetCampaignDto, error)
 }
 
 type ServiceImpl struct {
 	Repository Repository
 }
 
-func (s *ServiceImpl) CreateCampaign(ctx context.Context, dto contract.NewCampaignDto) (int, error) {
+func (s *ServiceImpl) CreateCampaign(ctx context.Context, dto contract.NewPostCampaignDto) (int, error) {
 	campaign, err := NewCampaign(dto.Name, dto.Content, dto.Emails)
 	if err != nil {
 		return 0, err
@@ -29,16 +29,16 @@ func (s *ServiceImpl) CreateCampaign(ctx context.Context, dto contract.NewCampai
 	return result, nil
 }
 
-func (s *ServiceImpl) GetCampaigns() (*[]contract.NewCampaignResponseDto, error) {
+func (s *ServiceImpl) GetCampaigns() (*[]contract.NewGetCampaignDto, error) {
 	campaigns, _ := s.Repository.Get()
-	campaignDtos := make([]contract.NewCampaignResponseDto, len(*campaigns))
+	campaignDtos := make([]contract.NewGetCampaignDto, len(*campaigns))
 
 	for i, campaign := range *campaigns {
-		var campaignDto contract.NewCampaignResponseDto
-		contactDtos := make([]contract.NewContactDto, len(campaign.Contacts))
+		var campaignDto contract.NewGetCampaignDto
+		contactDtos := make([]contract.NewGetContactDto, len(campaign.Contacts))
 
 		for i, contact := range campaign.Contacts {
-			var contactDto contract.NewContactDto
+			var contactDto contract.NewGetContactDto
 			contactDto.Id = contact.ID
 			contactDto.Email = contact.Email
 			contactDtos[i] = contactDto
@@ -55,21 +55,21 @@ func (s *ServiceImpl) GetCampaigns() (*[]contract.NewCampaignResponseDto, error)
 	return &campaignDtos, nil
 }
 
-func (s *ServiceImpl) GetBy(id int) (*contract.NewCampaignResponseDto, error) {
+func (s *ServiceImpl) GetBy(id int) (*contract.NewGetCampaignDto, error) {
 	campaign, err := s.Repository.GetBy(id)
 
 	if err != nil {
 		return nil, internalerrors.ErrInternal
 	}
 
-	contacts := make([]contract.NewContactDto, len(campaign.Contacts))
+	contacts := make([]contract.NewGetContactDto, len(campaign.Contacts))
 	for i, contact := range campaign.Contacts {
-		contacts[i] = contract.NewContactDto{
+		contacts[i] = contract.NewGetContactDto{
 			Id:    contact.ID,
 			Email: contact.Email,
 		}
 	}
-	return &contract.NewCampaignResponseDto{
+	return &contract.NewGetCampaignDto{
 		ID:       campaign.ID,
 		Name:     campaign.Name,
 		Content:  campaign.Content,

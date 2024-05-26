@@ -1,14 +1,14 @@
 package contract
 
-type NewCampaignResponseDto struct {
+type NewGetCampaignDto struct {
 	ID       int
 	Name     string
 	Content  string
 	Status   string
-	Contacts []NewContactDto
+	Contacts []NewGetContactDto
 }
 
-type NewContactDto struct {
+type NewGetContactDto struct {
 	Id    int
 	Email string
 }
