@@ -8,7 +8,7 @@ import (
 
 type Service interface {
 	CreateCampaign(ctx context.Context, dto contract.NewCampaignDto) (int, error)
-	GetCampaigns() (*[]Campaign, error)
+	GetCampaigns() (*[]contract.NewCampaignResponseDto, error)
 	GetBy(id int) (*contract.NewCampaignResponseDto, error)
 }
 
@@ -29,8 +29,30 @@ func (s *ServiceImpl) CreateCampaign(ctx context.Context, dto contract.NewCampai
 	return result, nil
 }
 
-func (s *ServiceImpl) GetCampaigns() (*[]Campaign, error) {
-	return s.Repository.Get()
+func (s *ServiceImpl) GetCampaigns() (*[]contract.NewCampaignResponseDto, error) {
+	campaigns, _ := s.Repository.Get()
+	campaignDtos := make([]contract.NewCampaignResponseDto, len(*campaigns))
+
+	for i, campaign := range *campaigns {
+		var campaignDto contract.NewCampaignResponseDto
+		contactDtos := make([]contract.NewContactDto, len(campaign.Contacts))
+
+		for i, contact := range campaign.Contacts {
+			var contactDto contract.NewContactDto
+			contactDto.Id = contact.ID
+			contactDto.Email = contact.Email
+			contactDtos[i] = contactDto
+		}
+
+		campaignDto.ID = campaign.ID
+		campaignDto.Name = campaign.Name
+		campaignDto.Content = campaign.Content
+		campaignDto.Contacts = contactDtos
+
+		campaignDtos[i] = campaignDto
+	}
+
+	return &campaignDtos, nil
 }
 
 func (s *ServiceImpl) GetBy(id int) (*contract.NewCampaignResponseDto, error) {

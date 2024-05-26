@@ -3,7 +3,6 @@ package mocks
 import (
 	"context"
 	"emailn/internal/contract"
-	"emailn/internal/domain/campaign"
 	"fmt"
 	"github.com/stretchr/testify/mock"
 )
@@ -13,7 +12,7 @@ type CampaignServiceMock struct {
 	mock.Mock
 }
 
-func (r *CampaignServiceMock) GetCampaigns() (*[]campaign.Campaign, error) {
+func (r *CampaignServiceMock) GetCampaigns() (*[]contract.NewCampaignResponseDto, error) {
 	args := r.Called()
 	fmt.Printf("test")
 	return nil, args.Error(1)
