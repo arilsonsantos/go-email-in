@@ -4,4 +4,4 @@ FROM migrate/migrate:latest
 COPY ./migrations /migrations
 
 ENTRYPOINT [ "migrate", "-path", "/migrations", "-database"]
-CMD ["postgresql://postgres:123@db:5432/go_campaigns?sslmode=disable up"]
+CMD ["postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?sslmode=disable up"]

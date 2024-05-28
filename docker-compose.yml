@@ -2,11 +2,13 @@ version: '3.7'
 
 services:
   db:
+    env_file:
+      - .env
     image: postgres:14-alpine
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=123
-      - POSTGRES_DB=go_campaigns
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
     restart: on-failure
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -q -d go_campaigns -U postgres"]
@@ -14,6 +16,8 @@ services:
       interval: 5s
       retries: 10
   db.migrations:
+    env_file:
+      - .env
     depends_on:
       db:
         condition: service_healthy
@@ -21,10 +25,12 @@ services:
     build:
       context: ./db/
       dockerfile: Dockerfile
-    command: "postgresql://postgres:123@db:5432/go_campaigns?sslmode=disable up"
+    command: "postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?sslmode=disable up"
   server:
     depends_on:
       - db.migrations
+    env_file:
+      - .env
     build: .
     ports:
       - "3000:3000"
