@@ -6,8 +6,8 @@ import (
 	"emailn/internal/controller"
 	"emailn/internal/controller/utils"
 	"emailn/internal/domain/campaign"
-	"emailn/internal/infrastructure/database"
 	"emailn/internal/infrastructure/db"
+	"emailn/internal/infrastructure/repository"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"net/http"
@@ -24,7 +24,7 @@ func main() {
 	defer func(DB *sql.DB) { _ = DB.Close() }(conn.DB)
 
 	ctx := context.Background()
-	repo := database.NewCampaignRepository(ctx, conn.DB)
+	repo := repository.NewCampaignRepository(ctx, conn.DB)
 
 	service := campaign.ServiceImpl{
 		Repository: repo,

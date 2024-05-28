@@ -4,8 +4,8 @@ import (
 	"context"
 	"database/sql"
 	"emailn/internal/domain/campaign"
-	"emailn/internal/infrastructure/database"
 	"emailn/internal/infrastructure/db"
+	"emailn/internal/infrastructure/repository"
 	"testing"
 )
 
@@ -14,7 +14,7 @@ func BenchmarkGetCampaigns(b *testing.B) {
 	defer func(DB *sql.DB) { _ = DB.Close() }(conn.DB)
 
 	ctx := context.Background()
-	repo := database.NewCampaignRepository(ctx, conn.DB)
+	repo := repository.NewCampaignRepository(ctx, conn.DB)
 
 	service1 := &campaign.ServiceImpl{Repository: repo}
 
