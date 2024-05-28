@@ -16,9 +16,9 @@ func BenchmarkGetCampaigns(b *testing.B) {
 	ctx := context.Background()
 	repo := database.NewCampaignRepository(ctx, conn.DB)
 
-	service1 := &campaign.ServiceImpl{Repository: repo} // Crie a instância do seu service com o repositório real
+	service1 := &campaign.ServiceImpl{Repository: repo}
 
-	b.ResetTimer() // Reseta o timer do benchmark para não incluir o tempo de setup
+	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
 		_, _ = service1.GetBy(20)

@@ -5,7 +5,7 @@ docker compose up
 or   
 docker-compose up
 
-## To run tests
+## To execute code tests
 
 ### It is necessary to have Golang installed  
 
