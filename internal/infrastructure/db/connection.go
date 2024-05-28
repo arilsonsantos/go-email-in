@@ -6,6 +6,7 @@ import (
 	_ "github.com/lib/pq"
 	"os"
 	"strconv"
+	"time"
 )
 
 type DB struct {
@@ -26,9 +27,10 @@ func OpenConn() (*DB, error) {
 		dbHost, dbPort, dbUser, dbPassword, dbName)
 
 	conn, err := sql.Open(driverName, strDb)
-	conn.SetMaxIdleConns(2)
-	conn.SetMaxOpenConns(5)
-	conn.SetConnMaxLifetime(180000)
+
+	conn.SetMaxIdleConns(getEnvInt("DB_MAX_IDLE_CONN", 1))
+	conn.SetMaxOpenConns(getEnvInt("DB_MAX_OPEN_CONN", 1))
+	conn.SetConnMaxLifetime(time.Duration(getEnvInt("DB_CONN_MAX_LIFETIME", 180000)))
 
 	if err != nil {
 		fmt.Println("Erro ao abrir o banco de dados:", err)
