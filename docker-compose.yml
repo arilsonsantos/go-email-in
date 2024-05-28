@@ -1,0 +1,31 @@
+version: '3.7'
+
+services:
+  db:
+    image: postgres:14-alpine
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=123
+      - POSTGRES_DB=go_campaigns
+    restart: on-failure
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -q -d go_campaigns -U postgres"]
+      timeout: 10s
+      interval: 5s
+      retries: 10
+  db.migrations:
+    depends_on:
+      db:
+        condition: service_healthy
+    image: db.migrations
+    build:
+      context: ./db/
+      dockerfile: Dockerfile
+    command: "postgresql://postgres:123@db:5432/go_campaigns?sslmode=disable up"
+  server:
+    depends_on:
+      - db.migrations
+    build: .
+    ports:
+      - "3000:3000"
+    restart: on-failure

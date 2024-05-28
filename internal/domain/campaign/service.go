@@ -34,25 +34,26 @@ func (s *ServiceImpl) GetCampaigns() (*[]contract.NewGetCampaignDto, error) {
 	campaignDtos := make([]contract.NewGetCampaignDto, len(*campaigns))
 
 	for i, campaign := range *campaigns {
-		var campaignDto contract.NewGetCampaignDto
-		contactDtos := make([]contract.NewGetContactDto, len(campaign.Contacts))
-
-		for i, contact := range campaign.Contacts {
-			var contactDto contract.NewGetContactDto
-			contactDto.Id = contact.ID
-			contactDto.Email = contact.Email
-			contactDtos[i] = contactDto
+		campaignDto := contract.NewGetCampaignDto{
+			ID:       campaign.ID,
+			Name:     campaign.Name,
+			Content:  campaign.Content,
+			Contacts: s.getContactDtos(campaign.Contacts),
 		}
-
-		campaignDto.ID = campaign.ID
-		campaignDto.Name = campaign.Name
-		campaignDto.Content = campaign.Content
-		campaignDto.Contacts = contactDtos
-
 		campaignDtos[i] = campaignDto
 	}
-
 	return &campaignDtos, nil
+}
+
+func (s *ServiceImpl) getContactDtos(contacts []Contact) []contract.NewGetContactDto {
+	contactDtos := make([]contract.NewGetContactDto, len(contacts))
+	for i, contact := range contacts {
+		contactDtos[i] = contract.NewGetContactDto{
+			Id:    contact.ID,
+			Email: contact.Email,
+		}
+	}
+	return contactDtos
 }
 
 func (s *ServiceImpl) GetBy(id int) (*contract.NewGetCampaignDto, error) {

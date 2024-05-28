@@ -11,4 +11,4 @@ GET http://localhost:3000/campaigns
 
 
 ###
-GET http://localhost:3000/campaigns/40
+GET http://localhost:3000/campaigns/1
