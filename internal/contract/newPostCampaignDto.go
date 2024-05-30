@@ -1,8 +1,9 @@
 package contract
 
 type NewPostCampaignDto struct {
-	ID      int
-	Name    string
-	Content string
-	Emails  []string
+	ID        int
+	Name      string
+	Content   string
+	Emails    []string
+	CreatedBy string
 }
