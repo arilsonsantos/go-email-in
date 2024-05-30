@@ -1,14 +1,36 @@
 POST http://localhost:3000/campaigns
+Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJzQTFvRjA2NWFYYkZXZ1pCZkVvRUJVajFjYWVaQTBDbEJlekxEM1Q2NlJRIn0.eyJleHAiOjE3MTcwOTY5MjcsImlhdCI6MTcxNzA5NjYyNywianRpIjoiMWM3YmM4YzctZWJmNS00OGU1LThkZDctZjhhMTg5M2QxNjIxIiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo4MDgwL3JlYWxtcy9wcm92aWRlciIsImF1ZCI6InJlZmxlY3RfaXQiLCJzdWIiOiI3MjFiMGE0MC1lYzgwLTQ1OTUtYjM5NC1jOTY2NmVmMDE0ZmEiLCJ0eXAiOiJCZWFyZXIiLCJhenAiOiJyZWZsZWN0X2l0Iiwic2Vzc2lvbl9zdGF0ZSI6IjdiMDZhNWRlLWRhMzUtNDZjNS1iYzBjLThlNTBjNGJjMDQxOSIsInNjb3BlIjoicHJvZmlsZSBlbWFpbCIsInNpZCI6IjdiMDZhNWRlLWRhMzUtNDZjNS1iYzBjLThlNTBjNGJjMDQxOSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJuYW1lIjoiQXJpbHNvbiBTYW50b3MiLCJwcmVmZXJyZWRfdXNlcm5hbWUiOiJhcmlsc29uc2FudG9zQGdtYWlsLmNvbSIsImpvYiI6ImRldmVsb3BlciIsImVtYWlsIjoiYXJpbHNvbnNhbnRvc0BnbWFpbC5jb20ifQ.twzNngSK1SQ0_-yEd-5KxO2GSL3o_i8nlOVOFm0bMzsQYdLptcFs_SwAQlrljcOMzYwpqer8p3B62zz51aWJ_fBFZft2tGE4PPH_S9oB0-xyOpF9WOMUUH1B6KMb6egs5mhKnxhZEcWNeFO0ljrW1EuCLJpDG8_GeUrCzkaiSARuhkvWmPgnPSpPKJsbrVnAZbimuDKLwFUUHh5Vu4cH0Yqx2mzc2ZScutd_T0l_SYcWf-VbuDTBsunJaz3y0Zjom6IIJ2WapUSV1TsRqHJ9d7yF04k90_31ABzZDQHnviTuL4l2O8yPTXj4A6YM_WVrc99fIYhKnRNH8GZ8iTMq3w
 
 {
     "name": "product ultra novo",
     "content": "content ultra novo",
-    "emails":["joao@email.com","maria@email.com"]
+    "emails":["joao@email.com"]
+}
+
+### Insert without token
+POST http://localhost:3000/campaigns/open
+
+{
+    "name": "Without token",
+    "content": "Inserted without token",
+    "emails":["token@email.com"]
 }
 
 ###
 GET http://localhost:3000/campaigns
 
-
 ###
-GET http://localhost:3000/campaigns/1
+GET http://localhost:3000/campaigns/5
+
+### Token Keycloak
+POST http://localhost:8080/realms/provider/protocol/openid-connect/token
+Content-Type: application/x-www-form-urlencoded
+
+client_id=emailn&client_secret=0gQVkNN1Rm6sqB5bEpbq33PU8Bvz4MCQ&grant_type=client_credentials
+
+
+### Token Keycloak por usuário
+POST http://localhost:8080/realms/provider/protocol/openid-connect/token
+Content-Type: application/x-www-form-urlencoded
+
+client_id=reflect_it&username=arilsonsantos@gmail.com&password=123&grant_type=password

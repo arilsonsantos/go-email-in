@@ -53,14 +53,14 @@ func (c *CampaignRepository) Save(ctx context.Context, campaingInput *campaign.C
 	defer cancel()
 	tx, err := c.DB.Begin()
 	var campaignId int
-	err = c.DB.QueryRowContext(ctx, queries.INSERT_CAMPAIGN,
+	err = c.DB.QueryRow(queries.INSERT_CAMPAIGN,
 		campaingInput.Name,
 		campaingInput.CreatedAt,
 		campaingInput.Content,
 		campaingInput.Status).Scan(&campaignId)
 
 	for _, contact := range campaingInput.Contacts {
-		_, err = c.DB.ExecContext(ctx, queries.INSERT_CONTACT, contact.Email, campaignId)
+		_, err = c.DB.Exec(queries.INSERT_CONTACT, contact.Email, campaignId)
 	}
 	err = tx.Commit()
 

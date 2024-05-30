@@ -35,10 +35,14 @@ func main() {
 	}
 
 	r.Route("/campaigns", func(r chi.Router) {
+		r.Use(controller.Auth)
 		r.Post("/", controller.HandleError(handlers.CampaignPost))
-		r.Get("/", controller.HandleError(handlers.CampaignGet))
-		r.Get("/{id}", controller.HandleError(handlers.CampaignGetById))
 	})
+
+	r.Post("/campaigns/open", controller.HandleError(handlers.CampaignPost))
+
+	r.Get("/campaigns", controller.HandleError(handlers.CampaignGet))
+	r.Get("/campaigns/{id}", controller.HandleError(handlers.CampaignGetById))
 
 	err := http.ListenAndServe(":3000", r)
 	if err != nil {

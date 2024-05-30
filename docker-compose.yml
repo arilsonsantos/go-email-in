@@ -10,6 +10,8 @@ services:
       - POSTGRES_PASSWORD=${DB_PASSWORD}
       - POSTGRES_DB=${DB_NAME}
     restart: on-failure
+    ports:
+      - "5432:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -q -d go_campaigns -U postgres"]
       timeout: 10s
@@ -26,12 +28,12 @@ services:
       context: ./db/
       dockerfile: Dockerfile
     command: "postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?sslmode=disable up"
-  server:
-    depends_on:
-      - db.migrations
-    env_file:
-      - .env
-    build: .
-    ports:
-      - "3000:3000"
-    restart: on-failure
+#  server:
+#    depends_on:
+#      - db.migrations
+#    env_file:
+#      - .env
+#    build: .
+#    ports:
+#      - "3001:3000"
+#    restart: on-failure

@@ -8,8 +8,6 @@ create table if not exists go.campaign
     name       text,
     created_at timestamp default now(),
     content    text,
-    email      text,
-    contact_ID int,
     status     text
 );
 

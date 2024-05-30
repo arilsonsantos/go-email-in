@@ -19,8 +19,8 @@ func OpenConn() (*DB, error) {
 
 	conn, err := sql.Open(driverName, strDB)
 
-	conn.SetMaxIdleConns(getEnvInt("DB_MAX_IDLE_CONN", 1))
-	conn.SetMaxOpenConns(getEnvInt("DB_MAX_OPEN_CONN", 1))
+	conn.SetMaxIdleConns(getEnvInt("DB_MAX_IDLE_CONN", 5))
+	conn.SetMaxOpenConns(getEnvInt("DB_MAX_OPEN_CONN", 10))
 	conn.SetConnMaxLifetime(time.Duration(getEnvInt("DB_CONN_MAX_LIFETIME", 180000)))
 
 	if err != nil {
