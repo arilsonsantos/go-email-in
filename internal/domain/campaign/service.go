@@ -17,7 +17,7 @@ type ServiceImpl struct {
 }
 
 func (s *ServiceImpl) CreateCampaign(ctx context.Context, dto contract.NewPostCampaignDto) (int, error) {
-	campaign, err := NewCampaign(dto.Name, dto.Content, dto.Emails)
+	campaign, err := NewCampaign(dto.Name, dto.Content, dto.Emails, dto.CreatedBy)
 	if err != nil {
 		return 0, err
 	}

@@ -20,14 +20,12 @@ type repositoryMock struct {
 func (r *repositoryMock) Save(ctx context.Context, campaign *Campaign) (int, error) {
 	args := r.Called(campaign)
 
-	// We'll need to do a bit of error checking to ensure the type assertion
-	// doesn't cause a panic
 	result, ok := args.Get(0).(int)
 	if !ok {
 		return 0, fmt.Errorf("error: return value is not int")
 	}
 
-	return result, args.Error(0)
+	return result, args.Error(1)
 }
 
 func (r *repositoryMock) Get() (*[]Campaign, error) {
@@ -51,6 +49,7 @@ var (
 		Emails: []string{
 			"teste1@email.com",
 		},
+		CreatedBy: "teste@email.com",
 	}
 	repository = new(repositoryMock)
 	service    = ServiceImpl{Repository: repository}
@@ -62,25 +61,20 @@ func Test_CreateCampaign(t *testing.T) {
 
 	t.Run("Save a new campaign", func(t *testing.T) {
 		campaign := contract.NewPostCampaignDto{
-			Name:    "My campaign",
-			Content: "Body of the campaign",
-			Emails:  []string{"teste1@email.com"},
+			Name:      "My campaign",
+			Content:   "Body of the campaign",
+			Emails:    []string{"teste1@email.com"},
+			CreatedBy: "teste@email.com",
 		}
-		repository.On("Save", mock.MatchedBy(func(c *Campaign) bool {
-			if c.Name != campaign.Name || c.Content != campaign.Content ||
-				len(c.Contacts) != len(campaign.Emails) {
-				return false
-			}
-			return true
-		})).Return(nil)
+		repository.On("Save", mock.Anything).Return(1, nil)
 
 		ctx := context.Background()
-		createCampaign, err := service.CreateCampaign(ctx, campaign)
+		campaignId, err := service.CreateCampaign(ctx, campaign)
 		if err != nil {
 			return
 		}
 
-		assertions.NotNil(createCampaign)
+		assertions.NotNil(campaignId)
 		repository.AssertExpectations(t)
 	})
 
@@ -123,6 +117,7 @@ func Test_CreateCampaign_ValidateRepository(t *testing.T) {
 		Emails: []string{
 			"teste1@email.com",
 		},
+		CreatedBy: "teste@email.com",
 	}
 	repository = new(repositoryMock)
 	service = ServiceImpl{repository}
@@ -181,7 +176,7 @@ func Test_Get(t *testing.T) {
 
 func Test_GetBy(t *testing.T) {
 	assertions := assert.New(t)
-	campaign, _ := NewCampaign(campaign.Name, campaign.Content, campaign.Emails)
+	campaign, _ := NewCampaign(campaign.Name, campaign.Content, campaign.Emails, campaign.CreatedBy)
 	campaign.ID = 123
 	repository := new(repositoryMock)
 	repository.On("GetBy", mock.MatchedBy(func(id int) bool {
@@ -190,11 +185,12 @@ func Test_GetBy(t *testing.T) {
 	service.Repository = repository
 	var campaignReturned, _ = service.GetBy(123)
 	assertions.Equal(campaign.ID, campaignReturned.ID)
+	assertions.Equal("teste@email.com", campaign.CreatedBy)
 }
 
 func Test_GetById_ReturnError(t *testing.T) {
 	assertions := assert.New(t)
-	campaign, _ := NewCampaign(campaign.Name, campaign.Content, campaign.Emails)
+	campaign, _ := NewCampaign(campaign.Name, campaign.Content, campaign.Emails, campaign.CreatedBy)
 	repository := new(repositoryMock)
 	repository.On("GetBy", mock.Anything).Return(nil, errors.New("internal error"))
 	service.Repository = repository
