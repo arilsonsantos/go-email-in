@@ -57,7 +57,8 @@ func (c *CampaignRepository) Save(ctx context.Context, campaingInput *campaign.C
 		campaingInput.Name,
 		campaingInput.CreatedAt,
 		campaingInput.Content,
-		campaingInput.Status).Scan(&campaignId)
+		campaingInput.Status,
+		campaingInput.CreatedBy).Scan(&campaignId)
 
 	for _, contact := range campaingInput.Contacts {
 		_, err = c.DB.Exec(queries.INSERT_CONTACT, contact.Email, campaignId)
