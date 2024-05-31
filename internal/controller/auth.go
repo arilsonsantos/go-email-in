@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"github.com/coreos/go-oidc/v3/oidc"
 	"github.com/go-chi/render"
-	"github.com/golang-jwt/jwt/v5"
 	"net/http"
 	"strings"
 )
@@ -17,7 +16,8 @@ func Auth(next http.Handler) http.Handler {
 			authorizationFailed("request does not contain an authorization token", w)
 			return
 		}
-		token = strings.Replace(token, "Bearer ", "", 1)
+		token = strings.TrimPrefix(token, "Bearer ")
+
 		provider, err := oidc.NewProvider(r.Context(), "http://localhost:8080/realms/provider")
 		if err != nil {
 			render.Status(r, 500)
@@ -32,9 +32,21 @@ func Auth(next http.Handler) http.Handler {
 			return
 		}
 
-		tokenParsed, err := jwt.Parse(token, nil)
-		claims := tokenParsed.Claims.(jwt.MapClaims)
-		email := claims["email"]
+		idToken, err := verifier.Verify(r.Context(), token)
+
+		claims := map[string]interface{}{}
+		if err := idToken.Claims(&claims); err != nil {
+			render.Status(r, 500)
+			render.JSON(w, r, map[string]string{"error": "error parsing claims"})
+			return
+		}
+
+		email, ok := claims["email"].(string)
+		if !ok {
+			render.Status(r, 500)
+			render.JSON(w, r, map[string]string{"error": "email claim not found or invalid"})
+			return
+		}
 
 		ctx := context.WithValue(r.Context(), "email", email)
 
