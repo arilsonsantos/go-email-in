@@ -15,7 +15,7 @@ type Service interface {
 
 type ServiceImpl struct {
 	Repository Repository
-	SendEmail  func(campaign *contract.NewGetCampaignDto) error
+	SendEmail  func(campaign *Campaign) error
 }
 
 func (s *ServiceImpl) CreateCampaign(ctx context.Context, dto contract.NewPostCampaignDto) (int, error) {
@@ -63,9 +63,9 @@ func (s *ServiceImpl) Start(id int) error {
 	if campaign.Status != Pending {
 		return errors.New("invalid status")
 	}
-	var campaignDto = getCampaign(campaign, s)
+	//var campaignDto = getCampaign(campaign, s)
 
-	err = s.SendEmail(&campaignDto)
+	err = s.SendEmail(campaign)
 	if err != nil {
 		return err
 	}

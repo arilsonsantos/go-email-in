@@ -229,7 +229,7 @@ func Test_Start_Should_Send_Email(t *testing.T) {
 	service.Repository = repository
 
 	emailWasSent := false
-	sendEmail := func(campaign *contract.NewGetCampaignDto) error {
+	sendEmail := func(campaign *Campaign) error {
 		if campaign.ID == campaignSaved.ID {
 			emailWasSent = true
 		}
