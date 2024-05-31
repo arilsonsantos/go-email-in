@@ -10,10 +10,15 @@ import (
 	"emailn/internal/infrastructure/repository"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/joho/godotenv"
 	"net/http"
 )
 
 func main() {
+	err := godotenv.Load()
+	if err != nil {
+		return
+	}
 	r := chi.NewRouter()
 	r.Use(middleware.Logger) // <--<< Logger should come before Recoverer
 	r.Use(middleware.Recoverer)
@@ -44,7 +49,7 @@ func main() {
 	r.Get("/campaigns", controller.HandleError(handlers.CampaignGet))
 	r.Get("/campaigns/{id}", controller.HandleError(handlers.CampaignGetById))
 
-	err := http.ListenAndServe(":3000", r)
+	err = http.ListenAndServe(":3000", r)
 	if err != nil {
 		utils.HandleError500(err)
 	}

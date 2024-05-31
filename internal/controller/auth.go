@@ -50,10 +50,8 @@ func Auth(next http.Handler) http.Handler {
 }
 
 func decodeToken(tokenStr string) (error, *jwt.Token) {
-	jwksUrl, exists := os.LookupEnv("KEYCLOAK_URL_CERTS")
-	if !exists {
-		jwksUrl = "http://localhost:8080/realms/provider/protocol/openid-connect/certs"
-	}
+
+	jwksUrl := os.Getenv("KEYCLOAK_URL_CERTS")
 
 	jwks, err := utils.FetchKeycloakJWKS(jwksUrl)
 

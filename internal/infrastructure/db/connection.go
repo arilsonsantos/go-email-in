@@ -41,31 +41,19 @@ func OpenConn() (*DB, error) {
 }
 
 func getStrDB() string {
-	dbHost := getEnvString("DB_HOST", host)
+	dbHost := os.Getenv("DB_HOST")
 	dbPort := getEnvInt("DB_PORT", port)
-	dbUser := getEnvString("DB_USER", user)
-	dbName := getEnvString("DB_NAME", dbname)
-	dbPassword := getEnvString("DB_PASSWORD", password)
+	dbUser := os.Getenv("DB_USER")
+	dbName := os.Getenv("DB_NAME")
+	dbPassword := os.Getenv("DB_PASSWORD")
 
-	strDb := fmt.Sprintf("host=%s port=%d user=%s "+
-		"password=%s dbname=%s sslmode=disable",
+	strDb := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
 		dbHost, dbPort, dbUser, dbPassword, dbName)
 	return strDb
 }
 
-func getEnvString(key string, defaultValue string) string {
-	value, exists := os.LookupEnv(key)
-	if !exists {
-		return defaultValue
-	}
-	return value
-}
-
 func getEnvInt(key string, defaultValue int) int {
-	value, exists := os.LookupEnv(key)
-	if !exists {
-		return defaultValue
-	}
+	value := os.Getenv(key)
 	i, err := strconv.Atoi(value)
 	if err != nil {
 		return defaultValue
