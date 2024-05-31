@@ -1,19 +1,26 @@
 package email
 
 import (
+	"emailn/internal/contract"
 	"fmt"
 	"net/smtp"
 	"os"
+	"strings"
 )
 
-func SendEmail() error {
+func SendEmail(campaign *contract.NewGetCampaignDto) error {
 	smtpHost := os.Getenv("EMAIL_SMTP_HOST")
 	smtpPort := os.Getenv("EMAIL_SMTP_PORT")
 	email := os.Getenv("EMAIL")
 	smtpUser := os.Getenv("SMTP_USER")
 	password := os.Getenv("EMAIL_SMTP_PASSWORD")
 
-	err := sendEmail(email, smtpUser, password, smtpHost, smtpPort)
+	var emailsTo []string
+	for _, contact := range campaign.Contacts {
+		emailsTo = append(emailsTo, contact.Email)
+	}
+
+	err := sendEmail(campaign, email, smtpUser, emailsTo, password, smtpHost, smtpPort)
 	if err != nil {
 		return err
 	}
@@ -23,22 +30,18 @@ func SendEmail() error {
 	return nil
 }
 
-func sendEmail(email string, smtpUser string, password string, smtpHost string, smtpPort string) error {
-	// Crie a mensagem de e-mail
-	to := []string{"arilsonsantos@gmail.com"}
-	subject := "Teste de e-mail"
-	body := "Olá,\n\nEste é um e-mail de teste enviado via Go."
-
+func sendEmail(campaign *contract.NewGetCampaignDto, email string, smtpUser string,
+	emailsTo []string, password string, smtpHost string, smtpPort string) error {
 	message := "From: " + email + "\n" +
-		"To: " + to[0] + "\n" +
-		"Subject: " + subject + "\n\n" +
-		body
+		"To: " + strings.Join(emailsTo, ",") + "\n" +
+		"Subject: " + campaign.Name + "\n\n" +
+		campaign.Content
 
 	// Autenticação com o servidor SMTP
 	auth := smtp.PlainAuth("", smtpUser, password, smtpHost)
 
 	// Envio do e-mail
-	err := smtp.SendMail(smtpHost+":"+smtpPort, auth, email, to, []byte(message))
+	err := smtp.SendMail(smtpHost+":"+smtpPort, auth, email, emailsTo, []byte(message))
 	if err != nil {
 		fmt.Println("Erro ao enviar e-mail:", err)
 		return err

@@ -24,5 +24,6 @@ const (
                                 ct.id IDEmail, 
                                 ct.email 
                             from go.campaign cp join go.contact ct on ct.campaign_id = cp.id
+							where cp.status = 'Pendent'
                             order by cp.id`
 )

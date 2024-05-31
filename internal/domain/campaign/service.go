@@ -4,6 +4,7 @@ import (
 	"context"
 	"emailn/internal/contract"
 	"emailn/internal/internalerrors"
+	"errors"
 )
 
 type Service interface {
@@ -14,6 +15,7 @@ type Service interface {
 
 type ServiceImpl struct {
 	Repository Repository
+	SendEmail  func(campaign *contract.NewGetCampaignDto) error
 }
 
 func (s *ServiceImpl) CreateCampaign(ctx context.Context, dto contract.NewPostCampaignDto) (int, error) {
@@ -34,15 +36,51 @@ func (s *ServiceImpl) GetCampaigns() (*[]contract.NewGetCampaignDto, error) {
 	campaignDtos := make([]contract.NewGetCampaignDto, len(*campaigns))
 
 	for i, campaign := range *campaigns {
-		campaignDto := contract.NewGetCampaignDto{
-			ID:       campaign.ID,
-			Name:     campaign.Name,
-			Content:  campaign.Content,
-			Contacts: s.getContactDtos(campaign.Contacts),
-		}
+		campaignDto := getCampaign(&campaign, s)
 		campaignDtos[i] = campaignDto
 	}
 	return &campaignDtos, nil
+}
+
+func (s *ServiceImpl) GetBy(id int) (*contract.NewGetCampaignDto, error) {
+	campaign, err := s.Repository.GetBy(id)
+
+	if err != nil {
+		return nil, internalerrors.ErrInternal
+	}
+
+	var campaignDto = getCampaign(campaign, s)
+
+	return &campaignDto, nil
+}
+
+func (s *ServiceImpl) Start(id int) error {
+	campaign, err := s.Repository.GetBy(id)
+	if err != nil {
+		return internalerrors.ErrNotFound
+	}
+
+	if campaign.Status != Pending {
+		return errors.New("invalid status")
+	}
+	var campaignDto = getCampaign(campaign, s)
+
+	err = s.SendEmail(&campaignDto)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func getCampaign(campaign *Campaign, s *ServiceImpl) contract.NewGetCampaignDto {
+	return contract.NewGetCampaignDto{
+		ID:       campaign.ID,
+		Name:     campaign.Name,
+		Content:  campaign.Content,
+		Status:   campaign.Status,
+		Contacts: s.getContactDtos(campaign.Contacts),
+	}
 }
 
 func (s *ServiceImpl) getContactDtos(contacts []Contact) []contract.NewGetContactDto {
@@ -54,27 +92,4 @@ func (s *ServiceImpl) getContactDtos(contacts []Contact) []contract.NewGetContac
 		}
 	}
 	return contactDtos
-}
-
-func (s *ServiceImpl) GetBy(id int) (*contract.NewGetCampaignDto, error) {
-	campaign, err := s.Repository.GetBy(id)
-
-	if err != nil {
-		return nil, internalerrors.ErrInternal
-	}
-
-	contacts := make([]contract.NewGetContactDto, len(campaign.Contacts))
-	for i, contact := range campaign.Contacts {
-		contacts[i] = contract.NewGetContactDto{
-			Id:    contact.ID,
-			Email: contact.Email,
-		}
-	}
-	return &contract.NewGetCampaignDto{
-		ID:       campaign.ID,
-		Name:     campaign.Name,
-		Content:  campaign.Content,
-		Status:   campaign.Status,
-		Contacts: contacts,
-	}, nil
 }
