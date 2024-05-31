@@ -50,9 +50,7 @@ func Auth(next http.Handler) http.Handler {
 }
 
 func decodeToken(tokenStr string) (error, *jwt.Token) {
-
 	jwksUrl := os.Getenv("KEYCLOAK_URL_CERTS")
-
 	jwks, err := utils.FetchKeycloakJWKS(jwksUrl)
 
 	var jwtKeys utils.JWKS
