@@ -2,42 +2,37 @@ package controller
 
 import (
 	"context"
+	"emailn/internal/controller/utils"
+	"encoding/base64"
 	"encoding/json"
-	"github.com/coreos/go-oidc/v3/oidc"
+	"encoding/pem"
+	"fmt"
 	"github.com/go-chi/render"
+	"github.com/golang-jwt/jwt/v5"
 	"net/http"
+	"os"
 	"strings"
 )
 
 func Auth(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		token := r.Header.Get("Authorization")
-		if token == "" {
+		tokenStr := r.Header.Get("Authorization")
+		if tokenStr == "" {
 			authorizationFailed("request does not contain an authorization token", w)
 			return
 		}
-		token = strings.TrimPrefix(token, "Bearer ")
+		tokenStr = strings.TrimPrefix(tokenStr, "Bearer ")
 
-		provider, err := oidc.NewProvider(r.Context(), "http://localhost:8080/realms/provider")
-		if err != nil {
-			render.Status(r, 500)
-			render.JSON(w, r, map[string]string{"error": "error to connect to the provider"})
-			return
-		}
-
-		verifier := provider.Verifier(&oidc.Config{ClientID: "reflect_it"})
-		_, err = verifier.Verify(r.Context(), token)
-		if err != nil {
+		err, token := decodeToken(tokenStr)
+		if !token.Valid || err != nil {
 			authorizationFailed("invalid token", w)
 			return
 		}
 
-		idToken, err := verifier.Verify(r.Context(), token)
-
-		claims := map[string]interface{}{}
-		if err := idToken.Claims(&claims); err != nil {
+		claims, ok := token.Claims.(jwt.MapClaims)
+		if !ok {
 			render.Status(r, 500)
-			render.JSON(w, r, map[string]string{"error": "error parsing claims"})
+			render.JSON(w, r, map[string]string{"error": "couldn't parse token claims"})
 			return
 		}
 
@@ -52,6 +47,42 @@ func Auth(next http.Handler) http.Handler {
 
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
+}
+
+func decodeToken(tokenStr string) (error, *jwt.Token) {
+	jwksUrl, exists := os.LookupEnv("KEYCLOAK_URL_CERTS")
+	if !exists {
+		jwksUrl = "http://localhost:8080/realms/provider/protocol/openid-connect/certs"
+	}
+
+	jwks, err := utils.FetchKeycloakJWKS(jwksUrl)
+
+	var jwtKeys utils.JWKS
+	for _, key := range jwks.Keys {
+		if key.Alg == "RS256" {
+			jwtKeys.Keys = append(jwtKeys.Keys, key)
+		}
+	}
+
+	keycloakPublicKey := jwtKeys.Keys[0].X5c[0]
+	decoded, err := base64.StdEncoding.DecodeString(keycloakPublicKey)
+	if err != nil {
+		panic(err)
+	}
+
+	pemKey := pem.EncodeToMemory(&pem.Block{
+		Type:  "PUBLIC KEY",
+		Bytes: decoded,
+	})
+
+	token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
+		_, ok := token.Method.(*jwt.SigningMethodRSA)
+		if !ok {
+			return nil, fmt.Errorf("unexpected signing method")
+		}
+		return jwt.ParseRSAPublicKeyFromPEM(pemKey)
+	})
+	return err, token
 }
 
 type Res401Struct struct {
