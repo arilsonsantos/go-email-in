@@ -16,7 +16,7 @@ type Service interface {
 
 type ServiceImpl struct {
 	Repository Repository
-	SendEmail  func(campaign *contract.NewGetCampaignDto) error
+	SendEmail  func(campaign *Campaign) error
 }
 
 func (s *ServiceImpl) CreateCampaign(ctx context.Context, dto contract.NewPostCampaignDto) (int, error) {
@@ -56,7 +56,7 @@ func (s *ServiceImpl) GetBy(id int) (*contract.NewGetCampaignDto, error) {
 }
 
 func (s *ServiceImpl) Start(id int) error {
-	campaign, err := s.GetBy(id)
+	campaign, err := s.Repository.GetBy(id)
 	if err != nil {
 		return internalerrors.ErrNotFound
 	}
@@ -70,7 +70,7 @@ func (s *ServiceImpl) Start(id int) error {
 		return internalerrors.ErrSendingEmail
 	}
 
-	//campaign.Done()
+	campaign.Done()
 	err = s.Repository.Update(id)
 	if err != nil {
 		return internalerrors.ErrInternal

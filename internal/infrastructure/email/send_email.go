@@ -1,14 +1,14 @@
 package email
 
 import (
-	"emailn/internal/contract"
+	"emailn/internal/domain/campaign"
 	"fmt"
 	"net/smtp"
 	"os"
 	"strings"
 )
 
-func SendEmail(campaign *contract.NewGetCampaignDto) error {
+func SendEmail(campaign *campaign.Campaign) error {
 	smtpHost := os.Getenv("EMAIL_SMTP_HOST")
 	smtpPort := os.Getenv("EMAIL_SMTP_PORT")
 	email := os.Getenv("EMAIL")
@@ -30,7 +30,7 @@ func SendEmail(campaign *contract.NewGetCampaignDto) error {
 	return nil
 }
 
-func sendEmail(campaign *contract.NewGetCampaignDto, email string, smtpUser string,
+func sendEmail(campaign *campaign.Campaign, email string, smtpUser string,
 	emailsTo []string, password string, smtpHost string, smtpPort string) error {
 	message := "From: " + email + "\n" +
 		"To: " + strings.Join(emailsTo, ",") + "\n" +
