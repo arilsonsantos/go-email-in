@@ -7,6 +7,7 @@ import (
 	"emailn/internal/controller/utils"
 	"emailn/internal/domain/campaign"
 	"emailn/internal/infrastructure/db"
+	"emailn/internal/infrastructure/email"
 	"emailn/internal/infrastructure/repository"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -34,6 +35,7 @@ func main() {
 
 	service := campaign.ServiceImpl{
 		Repository: repo,
+		SendEmail:  email.SendEmail,
 	}
 
 	handlers := controller.Handler{
@@ -49,6 +51,7 @@ func main() {
 
 	r.Get("/campaigns", controller.HandleError(handlers.CampaignGet))
 	r.Get("/campaigns/{id}", controller.HandleError(handlers.CampaignGetById))
+	r.Patch("/campaigns/start/{id}", controller.HandleError(handlers.CampaignStart))
 
 	err = http.ListenAndServe(":3000", r)
 	if err != nil {

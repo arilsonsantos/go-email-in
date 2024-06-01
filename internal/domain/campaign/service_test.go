@@ -230,7 +230,7 @@ func Test_Start_Should_Send_Email(t *testing.T) {
 	repository.On("GetBy", mock.Anything).Return(campaignPending, nil)
 
 	emailWasSent := false
-	sendEmail := func(campaign *Campaign) error {
+	sendEmail := func(campaign *contract.NewGetCampaignDto) error {
 		if campaign.ID == campaignPending.ID {
 			emailWasSent = true
 		}
@@ -247,7 +247,7 @@ func Test_Start_Return_Error_When_SendMail_Fail(t *testing.T) {
 	assertions := assert.New(t)
 	repository.On("GetBy", mock.Anything).Return(campaignPending, nil)
 
-	sendEmail := func(campaign *Campaign) error {
+	sendEmail := func(campaign *contract.NewGetCampaignDto) error {
 		return errors.New("error on send email")
 	}
 
@@ -264,7 +264,7 @@ func Test_Start_Return_Nil_When_Update_To_Done(t *testing.T) {
 		return campaignPending.ID == id
 	})).Return(nil)
 
-	sendEmail := func(campaign *Campaign) error {
+	sendEmail := func(campaign *contract.NewGetCampaignDto) error {
 		return nil
 	}
 
