@@ -63,13 +63,17 @@ func (s *ServiceImpl) Start(id int) error {
 	if campaign.Status != Pending {
 		return errors.New("invalid status")
 	}
-	//var campaignDto = getCampaign(campaign, s)
 
 	err = s.SendEmail(campaign)
 	if err != nil {
-		return err
+		return internalerrors.ErrSendingEmail
 	}
 
+	campaign.Done()
+	err = s.Repository.Update(id)
+	if err != nil {
+		return internalerrors.ErrInternal
+	}
 	return nil
 }
 

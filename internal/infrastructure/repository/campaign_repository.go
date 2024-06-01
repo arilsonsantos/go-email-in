@@ -74,6 +74,14 @@ func (c *CampaignRepository) Save(ctx context.Context, campaingInput *campaign.C
 	return campaignId, nil
 }
 
+func (c *CampaignRepository) Update(id int) error {
+	_, err := c.DB.Exec(queries.UPDATE_STATUS_CAMPAIGN, id)
+	if err != nil {
+		return nil
+	}
+	return nil
+}
+
 func getCampaign(rows *sql.Rows, err error) (*[]campaign.Campaign, error) {
 	campaignsMap := make(map[int]campaign.Campaign)
 	for rows.Next() {

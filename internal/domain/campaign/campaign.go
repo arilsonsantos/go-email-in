@@ -27,6 +27,14 @@ const (
 	Done    string = "Done"
 )
 
+func (c *Campaign) Done() {
+	c.Status = Done
+}
+
+func (c *Campaign) Started() {
+	c.Status = Started
+}
+
 func NewCampaign(name, content string, emails []string, createdBy string) (*Campaign, error) {
 	contacts := make([]Contact, len(emails))
 
