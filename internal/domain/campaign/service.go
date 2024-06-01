@@ -56,14 +56,7 @@ func (s *ServiceImpl) GetBy(id int) (*contract.NewGetCampaignDto, error) {
 }
 
 func (s *ServiceImpl) Start(id int) error {
-	campaign, err := s.Repository.GetBy(id)
-	if err != nil {
-		return internalerrors.ErrNotFound
-	}
-
-	if campaign.Status != Pending {
-		return errors.New("invalid status")
-	}
+	campaign, err := getValidCampaign(id, s)
 
 	err = s.SendEmail(campaign)
 	if err != nil {
@@ -76,6 +69,18 @@ func (s *ServiceImpl) Start(id int) error {
 		return internalerrors.ErrInternal
 	}
 	return nil
+}
+
+func getValidCampaign(id int, s *ServiceImpl) (*Campaign, error) {
+	campaign, err := s.Repository.GetBy(id)
+	if err != nil {
+		return nil, internalerrors.ErrNotFound
+	}
+
+	if campaign.Status != Pending {
+		return nil, errors.New("invalid status")
+	}
+	return campaign, err
 }
 
 func getCampaign(campaign *Campaign, s *ServiceImpl) contract.NewGetCampaignDto {
