@@ -25,6 +25,7 @@ const (
 	Pending string = "Pendent"
 	Started string = "Started"
 	Done    string = "Done"
+	Failed  string = "Failed"
 )
 
 func (c *Campaign) Done() {
@@ -33,6 +34,10 @@ func (c *Campaign) Done() {
 
 func (c *Campaign) Started() {
 	c.Status = Started
+}
+
+func (c *Campaign) Failed() {
+	c.Status = Failed
 }
 
 func NewCampaign(name, content string, emails []string, createdBy string) (*Campaign, error) {

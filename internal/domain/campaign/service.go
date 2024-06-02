@@ -57,14 +57,16 @@ func (s *ServiceImpl) GetBy(id int) (*contract.NewGetCampaignDto, error) {
 
 func (s *ServiceImpl) Start(id int) error {
 	campaign, err := getValidCampaign(id, s)
-
+	if err != nil {
+		return err
+	}
 	err = s.SendEmail(campaign)
 	if err != nil {
 		return internalerrors.ErrSendingEmail
 	}
 
 	campaign.Done()
-	err = s.Repository.Update(id)
+	err = s.Repository.Update(Done, id)
 	if err != nil {
 		return internalerrors.ErrInternal
 	}

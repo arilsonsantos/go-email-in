@@ -42,7 +42,7 @@ func (r *repositoryMock) GetBy(id int) (*Campaign, error) {
 	return args.Get(0).(*Campaign), nil
 }
 
-func (r *repositoryMock) Update(id int) error {
+func (r *repositoryMock) Update(status string, id int) error {
 	return nil
 }
 

@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"emailn/internal/domain/campaign"
 	"emailn/internal/infrastructure/queries"
+	"emailn/internal/internalerrors"
 	"errors"
 	"fmt"
 	"time"
@@ -74,10 +75,10 @@ func (c *CampaignRepository) Save(ctx context.Context, campaingInput *campaign.C
 	return campaignId, nil
 }
 
-func (c *CampaignRepository) Update(id int) error {
-	_, err := c.DB.Exec(queries.UPDATE_STATUS_CAMPAIGN, id)
+func (c *CampaignRepository) Update(status string, id int) error {
+	_, err := c.DB.Exec(queries.UPDATE_STATUS_CAMPAIGN, status, id)
 	if err != nil {
-		return nil
+		return internalerrors.ErrInternal
 	}
 	return nil
 }
