@@ -61,19 +61,21 @@ func (s *ServiceImpl) Start(id int) error {
 		return err
 	}
 
-	go func() {
-		err = s.SendEmail(campaign)
-		if err != nil {
-			campaign.Failed()
-		} else {
-			campaign.Done()
-		}
-		err = s.Repository.Update(campaign)
-	}()
+	go sendEmail(err, s, campaign)
 
 	campaign.Started()
 	err = s.Repository.Update(campaign)
 	return nil
+}
+
+func sendEmail(err error, s *ServiceImpl, campaign *Campaign) {
+	err = s.SendEmail(campaign)
+	if err != nil {
+		campaign.Failed()
+	} else {
+		campaign.Done()
+	}
+	err = s.Repository.Update(campaign)
 }
 
 func getValidCampaign(id int, s *ServiceImpl) (*Campaign, error) {

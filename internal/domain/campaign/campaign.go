@@ -15,6 +15,7 @@ type Campaign struct {
 	ID        int       //`validate:"required"`
 	Name      string    `validate:"min=3,max=30" json:"name"`
 	CreatedAt time.Time `validate:"required" db:"created_at" json:"created_at"`
+	UpdatedAt time.Time `db:"updated_at" json:"updated_at"`
 	Content   string    `validate:"min=5,max=100" json:"content"`
 	Status    string    `db:"status" json:"status"`
 	Contacts  []Contact `validate:"min=1,dive" json:"contacts"`
@@ -30,14 +31,17 @@ const (
 
 func (c *Campaign) Done() {
 	c.Status = Done
+	c.UpdatedAt = time.Now()
 }
 
 func (c *Campaign) Started() {
 	c.Status = Started
+	c.UpdatedAt = time.Now()
 }
 
 func (c *Campaign) Failed() {
 	c.Status = Failed
+	c.UpdatedAt = time.Now()
 }
 
 func NewCampaign(name, content string, emails []string, createdBy string) (*Campaign, error) {
