@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"reflect"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -42,7 +43,7 @@ func (r *repositoryMock) GetBy(id int) (*Campaign, error) {
 	return args.Get(0).(*Campaign), nil
 }
 
-func (r *repositoryMock) Update(status string, id int) error {
+func (r *repositoryMock) Update(campaign *Campaign) error {
 	return nil
 }
 
@@ -239,6 +240,7 @@ func Test_Start_Should_Send_Email(t *testing.T) {
 
 	service.SendEmail = sendEmail
 	_ = service.Start(campaignPending.ID)
+	time.Sleep(1 * time.Second)
 	assertions.True(emailWasSent)
 }
 
@@ -252,8 +254,26 @@ func Test_Start_Return_Error_When_SendMail_Fail(t *testing.T) {
 	}
 
 	service.SendEmail = sendEmail
-	err := service.Start(campaignPending.ID)
-	assertions.Equal(internalerrors.ErrSendingEmail.Error(), err.Error())
+
+	service.Start(campaignPending.ID)
+	time.Sleep(2 * time.Second)
+	assertions.Equal(Failed, campaignPending.Status)
+}
+
+func Test_Start_Return_Error_When_SendMail_Started(t *testing.T) {
+	setUp()
+	assertions := assert.New(t)
+	repository.On("GetBy", mock.Anything).Return(campaignPending, nil)
+
+	sendEmail := func(campaign *Campaign) error {
+		return errors.New("error on send email")
+	}
+
+	service.SendEmail = sendEmail
+
+	_ = service.Start(campaignPending.ID)
+
+	assertions.Equal(Started, campaignPending.Status)
 }
 
 func Test_Start_Return_Nil_When_Update_To_Done(t *testing.T) {
@@ -269,6 +289,11 @@ func Test_Start_Return_Nil_When_Update_To_Done(t *testing.T) {
 	}
 
 	service.SendEmail = sendEmail
-	service.Start(campaignPending.ID)
+	err := service.Start(campaignPending.ID)
+	if err != nil {
+		return
+	}
+	assertions.Equal(Started, campaignPending.Status)
+	time.Sleep(1 * time.Second)
 	assertions.Equal(Done, campaignPending.Status)
 }

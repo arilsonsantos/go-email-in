@@ -75,8 +75,8 @@ func (c *CampaignRepository) Save(ctx context.Context, campaingInput *campaign.C
 	return campaignId, nil
 }
 
-func (c *CampaignRepository) Update(status string, id int) error {
-	_, err := c.DB.Exec(queries.UPDATE_STATUS_CAMPAIGN, status, id)
+func (c *CampaignRepository) Update(campaign *campaign.Campaign) error {
+	_, err := c.DB.Exec(queries.UPDATE_STATUS_CAMPAIGN, campaign.Status, campaign.ID)
 	if err != nil {
 		return internalerrors.ErrInternal
 	}
