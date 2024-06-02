@@ -30,3 +30,8 @@ func (r *CampaignServiceMock) CreateCampaign(ctx context.Context, dto contract.N
 	args := r.Called(dto)
 	return args.Get(0).(int), args.Error(1)
 }
+
+func (r *CampaignServiceMock) Start(id int) error {
+	args := r.Called(id)
+	return args.Error(0)
+}

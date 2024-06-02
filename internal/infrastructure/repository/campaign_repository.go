@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"emailn/internal/domain/campaign"
 	"emailn/internal/infrastructure/queries"
+	"emailn/internal/internalerrors"
 	"errors"
 	"fmt"
 	"time"
@@ -53,14 +54,15 @@ func (c *CampaignRepository) Save(ctx context.Context, campaingInput *campaign.C
 	defer cancel()
 	tx, err := c.DB.Begin()
 	var campaignId int
-	err = c.DB.QueryRowContext(ctx, queries.INSERT_CAMPAIGN,
+	err = c.DB.QueryRow(queries.INSERT_CAMPAIGN,
 		campaingInput.Name,
 		campaingInput.CreatedAt,
 		campaingInput.Content,
-		campaingInput.Status).Scan(&campaignId)
+		campaingInput.Status,
+		campaingInput.CreatedBy).Scan(&campaignId)
 
 	for _, contact := range campaingInput.Contacts {
-		_, err = c.DB.ExecContext(ctx, queries.INSERT_CONTACT, contact.Email, campaignId)
+		_, err = c.DB.Exec(queries.INSERT_CONTACT, contact.Email, campaignId)
 	}
 	err = tx.Commit()
 
@@ -71,6 +73,14 @@ func (c *CampaignRepository) Save(ctx context.Context, campaingInput *campaign.C
 	}
 
 	return campaignId, nil
+}
+
+func (c *CampaignRepository) Update(campaign *campaign.Campaign) error {
+	_, err := c.DB.Exec(queries.UPDATE_CAMPAIGN, campaign.Status, campaign.ID, campaign.UpdatedAt)
+	if err != nil {
+		return internalerrors.ErrInternal
+	}
+	return nil
 }
 
 func getCampaign(rows *sql.Rows, err error) (*[]campaign.Campaign, error) {

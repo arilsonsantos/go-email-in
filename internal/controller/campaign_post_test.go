@@ -2,6 +2,7 @@ package controller
 
 import (
 	"bytes"
+	"context"
 	"emailn/internal/contract"
 	"emailn/internal/internalerrors"
 	"emailn/internal/test/mocks"
@@ -18,13 +19,16 @@ import (
 func Test_CampaignPost_should_save_campaing(t *testing.T) {
 	assertions := assert.New(t)
 	service := new(mocks.CampaignServiceMock)
+	createdByEmail := "teste@email.com"
 	body := contract.NewPostCampaignDto{
 		Name:    "My campaign",
 		Content: "Body of the campaign",
 		Emails:  []string{"teste@example.com"},
 	}
 	service.On("CreateCampaign", mock.MatchedBy(func(dto contract.NewPostCampaignDto) bool {
-		if dto.Name == body.Name && dto.Content == body.Content && len(dto.Emails) == len(body.Emails) {
+		if dto.Name == body.Name && dto.Content == body.Content &&
+			len(dto.Emails) == len(body.Emails) &&
+			dto.CreatedBy == createdByEmail {
 			return true
 		}
 		return false
@@ -38,19 +42,20 @@ func Test_CampaignPost_should_save_campaing(t *testing.T) {
 		return
 	}
 	req, _ := http.NewRequest("POST", "/campaign", &buf)
+	ctx := context.WithValue(req.Context(), "email", createdByEmail)
+	req = req.WithContext(ctx)
 	rr := httptest.NewRecorder()
-
 	obj, status, err := handler.CampaignPost(rr, req)
 	assertions.Equal(http.StatusCreated, status)
 	assertions.Nil(err)
 	assertions.Equal(map[string]int{"id": 123}, obj)
 	assertions.Equal(123, obj.(map[string]int)["id"])
-
 }
 
 func Test_CampaignPost_should_return_error(t *testing.T) {
 	assertions := assert.New(t)
 	service := new(mocks.CampaignServiceMock)
+	createdByEmail := "teste@email.com"
 	body := contract.NewPostCampaignDto{
 		Name:    "My campaign",
 		Content: "Body of the campaign",
@@ -66,6 +71,8 @@ func Test_CampaignPost_should_return_error(t *testing.T) {
 		return
 	}
 	req, _ := http.NewRequest("POST", "/campaign", &buf)
+	ctx := context.WithValue(req.Context(), "email", createdByEmail)
+	req = req.WithContext(ctx)
 	rr := httptest.NewRecorder()
 
 	_, status, err := handler.CampaignPost(rr, req)

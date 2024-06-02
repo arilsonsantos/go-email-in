@@ -1,14 +1,39 @@
 POST http://localhost:3000/campaigns
+Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJzQTFvRjA2NWFYYkZXZ1pCZkVvRUJVajFjYWVaQTBDbEJlekxEM1Q2NlJRIn0.eyJleHAiOjE3MTczNjQ4MTEsImlhdCI6MTcxNzM2NDIxMSwianRpIjoiYzg2YjdlMmQtODZhZC00OWY4LWE2MGUtZDFhYTIyNmU5ZDFlIiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo4MDgwL3JlYWxtcy9wcm92aWRlciIsImF1ZCI6InJlZmxlY3RfaXQiLCJzdWIiOiI3MjFiMGE0MC1lYzgwLTQ1OTUtYjM5NC1jOTY2NmVmMDE0ZmEiLCJ0eXAiOiJCZWFyZXIiLCJhenAiOiJyZWZsZWN0X2l0Iiwic2Vzc2lvbl9zdGF0ZSI6IjlkMWIxZjQxLWJjM2EtNGY3YS1iMTEzLTYyYzg0NzI0MTg0YyIsInNjb3BlIjoicHJvZmlsZSBlbWFpbCIsInNpZCI6IjlkMWIxZjQxLWJjM2EtNGY3YS1iMTEzLTYyYzg0NzI0MTg0YyIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJuYW1lIjoiQXJpbHNvbiBTYW50b3MiLCJwcmVmZXJyZWRfdXNlcm5hbWUiOiJhcmlsc29uc2FudG9zQGdtYWlsLmNvbSIsImpvYiI6ImRldmVsb3BlciIsImVtYWlsIjoiYXJpbHNvbnNhbnRvc0BnbWFpbC5jb20ifQ.o98fzg3nNwo8037082pKF0_Ncx2V2lsLALAmyU2H9lzBVvJW4jXdPTtLBq2FU93_YOuxnAPcxUtYUiqThW-SfCIQmtUDCQ9Qk6Ig_28wQkVM869tmsyZDmuXbWNvfBRZkJv7pMYGlGhwTuAQLMKUnA2T-Xwbf_nFHSwaH4VYZdOXqoZ3Ei2OFxeCvzoMFID5DwkI2zYfo8nl-oWKSmxM4-wW4AqOZW_g8TSeyUxAWUNKqrqcc3T8MbFr4VNkDf9vc31eb0gkzDlpEZ1tJG4Gw9O-u7pgNmJ5yrwxGWuqWM2YXgf8YL6f704EWGbB1lNy_hQNYsxQrQGEcLlZs878VQ
 
 {
     "name": "product ultra novo",
     "content": "content ultra novo",
-    "emails":["joao@email.com","maria@email.com"]
+    "emails":["joao@email.com"]
+}
+
+### Insert without token
+POST http://localhost:3000/campaigns/open
+
+{
+    "name": "Without token",
+    "content": "Inserted without token",
+    "emails":["token@email.com"]
 }
 
 ###
 GET http://localhost:3000/campaigns
 
-
 ###
-GET http://localhost:3000/campaigns/1
+GET http://localhost:3000/campaigns/39
+
+### Start campaign
+PATCH http://localhost:3000/campaigns/start/39
+
+### Token Keycloak
+POST http://localhost:8080/realms/provider/protocol/openid-connect/token
+Content-Type: application/x-www-form-urlencoded
+
+client_id=emailn&client_secret=0gQVkNN1Rm6sqB5bEpbq33PU8Bvz4MCQ&grant_type=client_credentials
+
+
+### Token Keycloak por usuário
+POST http://localhost:8080/realms/provider/protocol/openid-connect/token
+Content-Type: application/x-www-form-urlencoded
+
+client_id=reflect_it&username=arilsonsantos@gmail.com&password=123&grant_type=password

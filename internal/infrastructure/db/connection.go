@@ -13,23 +13,14 @@ type DB struct {
 	DB *sql.DB
 }
 
-var dbConn = &DB{}
-
 func OpenConn() (*DB, error) {
+	var dbConn = &DB{}
+	strDB := getStrDB()
 
-	dbHost := getEnvString("DB_HOST", host)
-	dbPort := getEnvInt("DB_PORT", port)
-	dbUser := getEnvString("DB_USER", user)
-	dbName := getEnvString("DB_NAME", dbname)
-	dbPassword := getEnvString("DB_PASSWORD", password)
-	strDb := fmt.Sprintf("host=%s port=%d user=%s "+
-		"password=%s dbname=%s sslmode=disable",
-		dbHost, dbPort, dbUser, dbPassword, dbName)
+	conn, err := sql.Open(driverName, strDB)
 
-	conn, err := sql.Open(driverName, strDb)
-
-	conn.SetMaxIdleConns(getEnvInt("DB_MAX_IDLE_CONN", 1))
-	conn.SetMaxOpenConns(getEnvInt("DB_MAX_OPEN_CONN", 1))
+	conn.SetMaxIdleConns(getEnvInt("DB_MAX_IDLE_CONN", 5))
+	conn.SetMaxOpenConns(getEnvInt("DB_MAX_OPEN_CONN", 10))
 	conn.SetConnMaxLifetime(time.Duration(getEnvInt("DB_CONN_MAX_LIFETIME", 180000)))
 
 	if err != nil {
@@ -49,19 +40,20 @@ func OpenConn() (*DB, error) {
 	return dbConn, err
 }
 
-func getEnvString(key string, defaultValue string) string {
-	value, exists := os.LookupEnv(key)
-	if !exists {
-		return defaultValue
-	}
-	return value
+func getStrDB() string {
+	dbHost := os.Getenv("DB_HOST")
+	dbPort := getEnvInt("DB_PORT", port)
+	dbUser := os.Getenv("DB_USER")
+	dbName := os.Getenv("DB_NAME")
+	dbPassword := os.Getenv("DB_PASSWORD")
+
+	strDb := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
+		dbHost, dbPort, dbUser, dbPassword, dbName)
+	return strDb
 }
 
 func getEnvInt(key string, defaultValue int) int {
-	value, exists := os.LookupEnv(key)
-	if !exists {
-		return defaultValue
-	}
+	value := os.Getenv(key)
 	i, err := strconv.Atoi(value)
 	if err != nil {
 		return defaultValue
