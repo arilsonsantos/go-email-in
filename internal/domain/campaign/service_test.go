@@ -2,7 +2,7 @@ package campaign
 
 import (
 	"context"
-	"emailn/internal/contract"
+	"emailn/internal/controller/dto"
 	"emailn/internal/internalerrors"
 	"errors"
 	"fmt"
@@ -48,7 +48,7 @@ func (r *repositoryMock) Update(campaign *Campaign) error {
 }
 
 var (
-	campaign = contract.NewPostCampaignDto{
+	campaign = dto.NewPostCampaignDto{
 		Name:    "My campaign",
 		Content: "Body of the campaign",
 		Emails: []string{
@@ -73,7 +73,7 @@ func Test_CreateCampaign(t *testing.T) {
 	ctx := context.Background()
 
 	t.Run("Save a new campaign", func(t *testing.T) {
-		campaign := contract.NewPostCampaignDto{
+		campaign := dto.NewPostCampaignDto{
 			Name:      "My campaign",
 			Content:   "Body of the campaign",
 			Emails:    []string{"teste1@email.com"},
@@ -92,7 +92,7 @@ func Test_CreateCampaign(t *testing.T) {
 	})
 
 	t.Run("Error trying to save a new campaign", func(t *testing.T) {
-		campaign := contract.NewPostCampaignDto{
+		campaign := dto.NewPostCampaignDto{
 			Name:    "",
 			Content: "Body of the campaign",
 			Emails:  []string{"teste1@email.com"},
@@ -125,7 +125,7 @@ func Test_CreateCampaign_ValidateRepository(t *testing.T) {
 	assertions := assert.New(t)
 	ctx := context.Background()
 
-	campaign = contract.NewPostCampaignDto{
+	campaign = dto.NewPostCampaignDto{
 		Name:    "My campaign",
 		Content: "Body of the campaign",
 		Emails: []string{

@@ -2,15 +2,15 @@ package campaign
 
 import (
 	"context"
-	"emailn/internal/contract"
+	contract2 "emailn/internal/controller/dto"
 	"emailn/internal/internalerrors"
 	"errors"
 )
 
 type Service interface {
-	CreateCampaign(ctx context.Context, dto contract.NewPostCampaignDto) (int, error)
-	GetCampaigns() (*[]contract.NewGetCampaignDto, error)
-	GetBy(id int) (*contract.NewGetCampaignDto, error)
+	CreateCampaign(ctx context.Context, dto contract2.NewPostCampaignDto) (int, error)
+	GetCampaigns() (*[]contract2.NewGetCampaignDto, error)
+	GetBy(id int) (*contract2.NewGetCampaignDto, error)
 	Start(id int) error
 }
 
@@ -19,7 +19,7 @@ type ServiceImpl struct {
 	SendEmail  func(campaign *Campaign) error
 }
 
-func (s *ServiceImpl) CreateCampaign(ctx context.Context, dto contract.NewPostCampaignDto) (int, error) {
+func (s *ServiceImpl) CreateCampaign(ctx context.Context, dto contract2.NewPostCampaignDto) (int, error) {
 	campaign, err := NewCampaign(dto.Name, dto.Content, dto.Emails, dto.CreatedBy)
 	if err != nil {
 		return 0, err
@@ -32,9 +32,9 @@ func (s *ServiceImpl) CreateCampaign(ctx context.Context, dto contract.NewPostCa
 	return result, nil
 }
 
-func (s *ServiceImpl) GetCampaigns() (*[]contract.NewGetCampaignDto, error) {
+func (s *ServiceImpl) GetCampaigns() (*[]contract2.NewGetCampaignDto, error) {
 	campaigns, _ := s.Repository.Get()
-	campaignDtos := make([]contract.NewGetCampaignDto, len(*campaigns))
+	campaignDtos := make([]contract2.NewGetCampaignDto, len(*campaigns))
 
 	for i, campaign := range *campaigns {
 		campaignDto := getCampaign(&campaign, s)
@@ -43,7 +43,7 @@ func (s *ServiceImpl) GetCampaigns() (*[]contract.NewGetCampaignDto, error) {
 	return &campaignDtos, nil
 }
 
-func (s *ServiceImpl) GetBy(id int) (*contract.NewGetCampaignDto, error) {
+func (s *ServiceImpl) GetBy(id int) (*contract2.NewGetCampaignDto, error) {
 	campaign, err := s.Repository.GetBy(id)
 
 	if err != nil {
@@ -90,8 +90,8 @@ func getValidCampaign(id int, s *ServiceImpl) (*Campaign, error) {
 	return campaign, err
 }
 
-func getCampaign(campaign *Campaign, s *ServiceImpl) contract.NewGetCampaignDto {
-	return contract.NewGetCampaignDto{
+func getCampaign(campaign *Campaign, s *ServiceImpl) contract2.NewGetCampaignDto {
+	return contract2.NewGetCampaignDto{
 		ID:       campaign.ID,
 		Name:     campaign.Name,
 		Content:  campaign.Content,
@@ -100,10 +100,10 @@ func getCampaign(campaign *Campaign, s *ServiceImpl) contract.NewGetCampaignDto 
 	}
 }
 
-func (s *ServiceImpl) getContactDtos(contacts []Contact) []contract.NewGetContactDto {
-	contactDtos := make([]contract.NewGetContactDto, len(contacts))
+func (s *ServiceImpl) getContactDtos(contacts []Contact) []contract2.NewGetContactDto {
+	contactDtos := make([]contract2.NewGetContactDto, len(contacts))
 	for i, contact := range contacts {
-		contactDtos[i] = contract.NewGetContactDto{
+		contactDtos[i] = contract2.NewGetContactDto{
 			Id:    contact.ID,
 			Email: contact.Email,
 		}

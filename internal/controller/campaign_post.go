@@ -1,13 +1,13 @@
 package controller
 
 import (
-	"emailn/internal/contract"
+	"emailn/internal/controller/dto"
 	"emailn/internal/controller/utils"
 	"net/http"
 )
 
 func (h *Handler) CampaignPost(w http.ResponseWriter, req *http.Request) (interface{}, int, error) {
-	var campaignDto contract.NewPostCampaignDto
+	var campaignDto dto.NewPostCampaignDto
 	_, _ = utils.ParseJSONRequest(req, &campaignDto)
 	email := req.Context().Value("email").(string)
 	campaignDto.CreatedBy = email

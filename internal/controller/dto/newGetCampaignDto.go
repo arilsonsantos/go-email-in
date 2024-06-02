@@ -1,4 +1,4 @@
-package contract
+package dto
 
 type NewGetCampaignDto struct {
 	ID       int

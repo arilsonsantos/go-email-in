@@ -3,7 +3,7 @@ package controller
 import (
 	"bytes"
 	"context"
-	"emailn/internal/contract"
+	"emailn/internal/controller/dto"
 	"emailn/internal/internalerrors"
 	"emailn/internal/test/mocks"
 	"encoding/json"
@@ -20,12 +20,12 @@ func Test_CampaignPost_should_save_campaing(t *testing.T) {
 	assertions := assert.New(t)
 	service := new(mocks.CampaignServiceMock)
 	createdByEmail := "teste@email.com"
-	body := contract.NewPostCampaignDto{
+	body := dto.NewPostCampaignDto{
 		Name:    "My campaign",
 		Content: "Body of the campaign",
 		Emails:  []string{"teste@example.com"},
 	}
-	service.On("CreateCampaign", mock.MatchedBy(func(dto contract.NewPostCampaignDto) bool {
+	service.On("CreateCampaign", mock.MatchedBy(func(dto dto.NewPostCampaignDto) bool {
 		if dto.Name == body.Name && dto.Content == body.Content &&
 			len(dto.Emails) == len(body.Emails) &&
 			dto.CreatedBy == createdByEmail {
@@ -56,7 +56,7 @@ func Test_CampaignPost_should_return_error(t *testing.T) {
 	assertions := assert.New(t)
 	service := new(mocks.CampaignServiceMock)
 	createdByEmail := "teste@email.com"
-	body := contract.NewPostCampaignDto{
+	body := dto.NewPostCampaignDto{
 		Name:    "My campaign",
 		Content: "Body of the campaign",
 		Emails:  []string{"teste@example.com"},
