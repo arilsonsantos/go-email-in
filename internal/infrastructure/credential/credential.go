@@ -12,7 +12,7 @@ import (
 	"strings"
 )
 
-func ValidateToken(tokenStr string, r *http.Request, w http.ResponseWriter) (string, error) {
+func ValidateToken(tokenStr string) (string, error) {
 	tokenStr = strings.TrimPrefix(tokenStr, "Bearer ")
 
 	err, token := decodeToken(tokenStr)
@@ -27,8 +27,10 @@ func ValidateToken(tokenStr string, r *http.Request, w http.ResponseWriter) (str
 
 	email, ok := claims["email"].(string)
 	if !ok {
-		return "", errors.New("email claim not found or invalid")
+		println("email claim not found or invalid")
+		return "", errors.New("invalid token")
 	}
+
 	return email, nil
 }
 

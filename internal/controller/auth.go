@@ -7,7 +7,7 @@ import (
 	"net/http"
 )
 
-type ValidationTokenFunc func(tokenStr string, r *http.Request, w http.ResponseWriter) (string, error)
+type ValidationTokenFunc func(tokenStr string) (string, error)
 
 var ValidationToken ValidationTokenFunc = credential.ValidateToken
 
@@ -19,10 +19,12 @@ func Auth(next http.Handler) http.Handler {
 			render.JSON(w, r, map[string]string{"error": "request does not contain an authorization token"})
 			return
 		}
-		email, err := ValidationToken(tokenStr, r, w)
+
+		email, err := ValidationToken(tokenStr)
+
 		if err != nil {
 			render.Status(r, http.StatusUnauthorized)
-			render.JSON(w, r, map[string]string{"error": "invalid token"})
+			render.JSON(w, r, map[string]string{"error": err.Error()})
 			return
 		}
 
