@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"emailn/internal/contract"
+	"emailn/internal/controller/dto"
 	"emailn/internal/domain/campaign"
 	"emailn/internal/test/mocks"
 	"errors"
@@ -14,7 +14,7 @@ import (
 
 func TestHandler_CampaignGetById_should_return_campaing(t *testing.T) {
 	assertions := assert.New(t)
-	campaignResponse := contract.NewGetCampaignDto{
+	campaignResponse := dto.NewGetCampaignDto{
 		ID:      123,
 		Name:    "My campaign",
 		Content: "Body of the campaign",
@@ -29,7 +29,7 @@ func TestHandler_CampaignGetById_should_return_campaing(t *testing.T) {
 	obj, status, err := handler.CampaignGetById(rr, req)
 	assertions.Equal(http.StatusOK, status)
 	assertions.Nil(err)
-	assertions.Equal(campaignResponse.ID, obj.(*contract.NewGetCampaignDto).ID)
+	assertions.Equal(campaignResponse.ID, obj.(*dto.NewGetCampaignDto).ID)
 }
 
 func TestHandler_CampaignGetByIdPost_should_return_error(t *testing.T) {
