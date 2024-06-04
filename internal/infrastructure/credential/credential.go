@@ -7,34 +7,37 @@ import (
 	"errors"
 	"fmt"
 	"github.com/golang-jwt/jwt/v5"
-	"net/http"
 	"os"
 	"strings"
 )
 
+const invalid_token = "invalid token"
+
 func ValidateToken(tokenStr string) (string, error) {
 	tokenStr = strings.TrimPrefix(tokenStr, "Bearer ")
 
-	err, token := decodeToken(tokenStr)
-	if !token.Valid || err != nil {
-		return "", errors.New("invalid token")
+	token, err := decodeToken(tokenStr)
+
+	if err != nil || !token.Valid {
+		return "", err
 	}
 
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if !ok {
-		return "", errors.New("couldn't parse token claims")
+		println("couldn't parse token claims")
+		return "", errors.New(invalid_token)
 	}
 
 	email, ok := claims["email"].(string)
 	if !ok {
 		println("email claim not found or invalid")
-		return "", errors.New("invalid token")
+		return "", errors.New(invalid_token)
 	}
 
 	return email, nil
 }
 
-func decodeToken(tokenStr string) (error, *jwt.Token) {
+func decodeToken(tokenStr string) (*jwt.Token, error) {
 	jwksUrl := os.Getenv("KEYCLOAK_URL_CERTS")
 	jwks, err := utils.FetchKeycloakJWKS(jwksUrl)
 
@@ -43,6 +46,11 @@ func decodeToken(tokenStr string) (error, *jwt.Token) {
 		if key.Alg == "RS256" {
 			jwtKeys.Keys = append(jwtKeys.Keys, key)
 		}
+	}
+
+	if len(jwtKeys.Keys) == 0 {
+		fmt.Println("jwtKeys está vazio")
+		return nil, errors.New(invalid_token)
 	}
 
 	keycloakPublicKey := jwtKeys.Keys[0].X5c[0]
@@ -59,26 +67,10 @@ func decodeToken(tokenStr string) (error, *jwt.Token) {
 	token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
 		_, ok := token.Method.(*jwt.SigningMethodRSA)
 		if !ok {
-			return nil, fmt.Errorf("unexpected signing method")
+			println("unexpected signing method")
+			return fmt.Errorf(invalid_token), nil
 		}
 		return jwt.ParseRSAPublicKeyFromPEM(pemKey)
 	})
-	return err, token
-}
-
-type Res401Struct struct {
-	Status   string
-	HTTPCode int
-	Message  string
-}
-
-func AuthorizationFailed(message string, w http.ResponseWriter) Res401Struct {
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	w.WriteHeader(http.StatusUnauthorized)
-	data := Res401Struct{
-		Status:   "FAILED",
-		HTTPCode: http.StatusUnauthorized,
-		Message:  message,
-	}
-	return data
+	return token, err
 }
