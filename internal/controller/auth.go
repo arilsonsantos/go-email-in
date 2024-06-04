@@ -2,44 +2,27 @@ package controller
 
 import (
 	"context"
-	"emailn/internal/controller/utils"
-	"encoding/base64"
-	"encoding/json"
-	"encoding/pem"
-	"fmt"
+	"emailn/internal/infrastructure/credential"
 	"github.com/go-chi/render"
-	"github.com/golang-jwt/jwt/v5"
 	"net/http"
-	"os"
-	"strings"
 )
+
+type ValidationTokenFunc func(tokenStr string, r *http.Request, w http.ResponseWriter) (string, error)
+
+var ValidationToken ValidationTokenFunc = credential.ValidateToken
 
 func Auth(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		tokenStr := r.Header.Get("Authorization")
 		if tokenStr == "" {
-			authorizationFailed("request does not contain an authorization token", w)
+			render.Status(r, http.StatusUnauthorized)
+			render.JSON(w, r, map[string]string{"error": "request does not contain an authorization token"})
 			return
 		}
-		tokenStr = strings.TrimPrefix(tokenStr, "Bearer ")
-
-		err, token := decodeToken(tokenStr)
-		if !token.Valid || err != nil {
-			authorizationFailed("invalid token", w)
-			return
-		}
-
-		claims, ok := token.Claims.(jwt.MapClaims)
-		if !ok {
-			render.Status(r, 500)
-			render.JSON(w, r, map[string]string{"error": "couldn't parse token claims"})
-			return
-		}
-
-		email, ok := claims["email"].(string)
-		if !ok {
-			render.Status(r, 500)
-			render.JSON(w, r, map[string]string{"error": "email claim not found or invalid"})
+		email, err := ValidationToken(tokenStr, r, w)
+		if err != nil {
+			render.Status(r, http.StatusUnauthorized)
+			render.JSON(w, r, map[string]string{"error": "invalid token"})
 			return
 		}
 
@@ -47,54 +30,4 @@ func Auth(next http.Handler) http.Handler {
 
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
-}
-
-func decodeToken(tokenStr string) (error, *jwt.Token) {
-	jwksUrl := os.Getenv("KEYCLOAK_URL_CERTS")
-	jwks, err := utils.FetchKeycloakJWKS(jwksUrl)
-
-	var jwtKeys utils.JWKS
-	for _, key := range jwks.Keys {
-		if key.Alg == "RS256" {
-			jwtKeys.Keys = append(jwtKeys.Keys, key)
-		}
-	}
-
-	keycloakPublicKey := jwtKeys.Keys[0].X5c[0]
-	decoded, err := base64.StdEncoding.DecodeString(keycloakPublicKey)
-	if err != nil {
-		panic(err)
-	}
-
-	pemKey := pem.EncodeToMemory(&pem.Block{
-		Type:  "PUBLIC KEY",
-		Bytes: decoded,
-	})
-
-	token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
-		_, ok := token.Method.(*jwt.SigningMethodRSA)
-		if !ok {
-			return nil, fmt.Errorf("unexpected signing method")
-		}
-		return jwt.ParseRSAPublicKeyFromPEM(pemKey)
-	})
-	return err, token
-}
-
-type Res401Struct struct {
-	Status   string
-	HTTPCode int
-	Message  string
-}
-
-func authorizationFailed(message string, w http.ResponseWriter) {
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	w.WriteHeader(http.StatusUnauthorized)
-	data := Res401Struct{
-		Status:   "FAILED",
-		HTTPCode: http.StatusUnauthorized,
-		Message:  message,
-	}
-	res, _ := json.Marshal(data)
-	w.Write(res)
 }
